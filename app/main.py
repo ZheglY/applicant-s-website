@@ -1,28 +1,35 @@
 from fastapi import FastAPI
-from models import User
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+# from app.core.config import settings
+# from app.core.logging_config import setup_logging
+from app.endpoints import auth_router, users_router  # Импортируем роутеры
 
+# Настройка логирования
+# setup_logging()
 
-app = FastAPI()
+# Создаем приложение
+app = FastAPI(
+    # title=settings.PROJECT_NAME,
+    # version=settings.VERSION,
+    # debug=settings.DEBUG,
+    docs_url="/api/docs",  # Swagger UI
+    redoc_url="/api/redoc"  # ReDoc
+)
 
+# Подключаем статические файлы (если есть)
+# app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-@app.get("/")
-async def news():
-    return {"message": "Тут заглушка для отображения новостной ленты"}
+# ПОДКЛЮЧАЕМ РОУТЕРЫ
+app.include_router(auth_router)      # Все пути /auth/*
+app.include_router(users_router)     # Все пути /users/*
 
+# Шаблоны для HTML
+# templates = Jinja2Templates(directory="app/templates")
 
-@app.get('/students/{student_id}')
-async def get_student(user_id: int):
-    return {"user_id": user_id, "message": "здесь должен отображаться каибнет студента"}
+@app.get("/index")
+async def index():
+    return {'message': "wkdwkwopfwelfwF"}
 
-
-@app.get('/students/list')
-async def show_students_list(limit: int = 10):
-    # return dict(list(fake_users.items())[:limit])
-    return {"message": "Тут заглушка для отображения списка студентов"}
-
-
-@app.post('/register/')
-async def register(user: User):
-    return {"message": "Тут заглушка для регистрации пользователей"}
 
 
