@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unik · Подача заявления</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="register-body">
+    <div class="register-container">
+        <!-- Левая часть с брендом и прогрессом -->
+        <div class="register-brand">
+            <div class="brand-content">
+                <div class="brand-logo">Unik</div>
+                <h1 class="brand-title">Подача заявления</h1>
+                <p class="brand-subtitle">Приёмная кампания 2026</p>
+                
+                <div class="progress-steps">
+                    <div class="step active">
+                        <div class="step-number">1</div>
+                        <div class="step-info">
+                            <span class="step-label">Шаг 1</span>
+                            <span class="step-name">Личные данные</span>
+                        </div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-info">
+                            <span class="step-label">Шаг 2</span>
+                            <span class="step-name">Образование</span>
+                        </div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-info">
+                            <span class="step-label">Шаг 3</span>
+                            <span class="step-name">Направления</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="brand-info">
+                    <div class="info-card">
+                        <div class="info-text">
+                            <h4>Заполните заявление</h4>
+                            <p>Все поля обязательны для рассмотрения</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-text">
+                            <h4>Выберите приоритеты</h4>
+                            <p>До 3 направлений в порядке приоритета</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-text">
+                            <h4>Укажите достижения</h4>
+                            <p>Индивидуальные достижения до 10 баллов</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="brand-quote">
+                    "Ваше будущее начинается здесь и сейчас"
+                </div>
+            </div>
+            <div class="brand-overlay"></div>
+        </div>
+        
+        <!-- Правая часть с формой регистрации -->
+        <div class="register-form-wrapper">
+            <div class="register-form-container">
+                <div class="form-header">
+                    <div class="mobile-logo">Unik</div>
+                    <h2>Заявление на поступление</h2>
+                    <p>Заполните все поля для подачи документов</p>
+                </div>
+                
+                <form class="register-form" id="registerForm">
+                    <!-- ШАГ 1: ЛИЧНЫЕ ДАННЫЕ -->
+                    <div class="form-section active" id="step1">
+                        <h3 class="section-title">Личные данные</h3>
+                        
+                        <div class="input-group">
+                            <label for="fullname">ФИО полностью</label>
+                            <div class="input-field">
+                                <span class="input-icon">👤</span>
+                                <input type="text" id="fullname" placeholder="Иванов Иван Иванович" required>
+                            </div>
+                        </div>
+                        
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="birthdate">Дата рождения</label>
+                                <div class="input-field">
+                                    <input type="date" id="birthdate" required>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="phone">Контактный телефон</label>
+                                <div class="input-field">
+                                    <input type="tel" id="phone" placeholder="+7 (999) 123-45-67" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="email">Электронная почта</label>
+                                <div class="input-field">
+                                    <input type="email" id="email" placeholder="name@example.com" required>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="telegram">Telegram (по желанию)</label>
+                                <div class="input-field">
+                                    <input type="text" id="telegram" placeholder="@username">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn-next" onclick="nextStep(2)">
+                                <span>Далее</span>
+                                <span class="btn-arrow">→</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- ШАГ 2: ОБРАЗОВАНИЕ И ДОСТИЖЕНИЯ -->
+                    <div class="form-section" id="step2">
+                        <h3 class="section-title">Образование и достижения</h3>
+                        
+                        <div class="input-group">
+                            <label for="school">Образовательная организация</label>
+                            <div class="input-field">
+                                <input type="text" id="school" placeholder="Средняя школа №123, г. Москва" required>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Результаты ЕГЭ</label>
+                            <div class="ege-grid">
+                                <div class="ege-item">
+                                    <span class="ege-subject">Русский язык</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100" required>
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">Математика (проф.)</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100" required>
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">Физика</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">Информатика</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">Обществознание</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">История</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">Химия</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">Биология</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
+                                </div>
+                                <div class="ege-item">
+                                    <span class="ege-subject">Английский язык</span>
+                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
+                                </div>
+                            </div>
+                            <div class="input-hint">* Укажите баллы только по сданным предметам</div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="achievements">Индивидуальные достижения</label>
+                            <div class="input-field">
+                                <textarea id="achievements" placeholder="Олимпиады, спортивные достижения, волонтёрство, золотая медаль и т.д." rows="3"></textarea>
+                            </div>
+                            <div class="input-hint">Максимум 10 дополнительных баллов</div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn-prev" onclick="prevStep(1)">
+                                <span class="btn-arrow">←</span>
+                                <span>Назад</span>
+                            </button>
+                            <button type="button" class="btn-next" onclick="nextStep(3)">
+                                <span>Далее</span>
+                                <span class="btn-arrow">→</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- ШАГ 3: ВЫБОР НАПРАВЛЕНИЙ И ПРИОРИТЕТЫ -->
+                    <div class="form-section" id="step3">
+                        <h3 class="section-title">Направления подготовки</h3>
+                        
+                        <div class="input-group">
+                            <label>Выберите направления (до 3-х)</label>
+                            <div class="priorities-container" id="prioritiesContainer">
+                                <div class="priority-item">
+                                    <div class="priority-header">
+                                        <span class="priority-number">1</span>
+                                        <span class="priority-label">Приоритет</span>
+                                    </div>
+                                    <select class="priority-select" onchange="updatePriorities()">
+                                        <option value="">Выберите направление</option>
+                                        <option value="Программная инженерия">Программная инженерия</option>
+                                        <option value="Искусственный интеллект">Искусственный интеллект</option>
+                                        <option value="Бизнес-аналитика">Бизнес-аналитика</option>
+                                        <option value="Прикладная математика">Прикладная математика</option>
+                                        <option value="Информационная безопасность">Информационная безопасность</option>
+                                        <option value="Web-разработка">Web-разработка</option>
+                                        <option value="Системное администрирование">Системное администрирование</option>
+                                        <option value="Робототехника">Робототехника</option>
+                                        <option value="Дизайн">Дизайн</option>
+                                        <option value="Экономика">Экономика</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="priority-item">
+                                    <div class="priority-header">
+                                        <span class="priority-number">2</span>
+                                        <span class="priority-label">Приоритет</span>
+                                    </div>
+                                    <select class="priority-select" onchange="updatePriorities()">
+                                        <option value="">Выберите направление</option>
+                                        <option value="Программная инженерия">Программная инженерия</option>
+                                        <option value="Искусственный интеллект">Искусственный интеллект</option>
+                                        <option value="Бизнес-аналитика">Бизнес-аналитика</option>
+                                        <option value="Прикладная математика">Прикладная математика</option>
+                                        <option value="Информационная безопасность">Информационная безопасность</option>
+                                        <option value="Web-разработка">Web-разработка</option>
+                                        <option value="Системное администрирование">Системное администрирование</option>
+                                        <option value="Робототехника">Робототехника</option>
+                                        <option value="Дизайн">Дизайн</option>
+                                        <option value="Экономика">Экономика</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="priority-item">
+                                    <div class="priority-header">
+                                        <span class="priority-number">3</span>
+                                        <span class="priority-label">Приоритет</span>
+                                    </div>
+                                    <select class="priority-select" onchange="updatePriorities()">
+                                        <option value="">Выберите направление</option>
+                                        <option value="Программная инженерия">Программная инженерия</option>
+                                        <option value="Искусственный интеллект">Искусственный интеллект</option>
+                                        <option value="Бизнес-аналитика">Бизнес-аналитика</option>
+                                        <option value="Прикладная математика">Прикладная математика</option>
+                                        <option value="Информационная безопасность">Информационная безопасность</option>
+                                        <option value="Web-разработка">Web-разработка</option>
+                                        <option value="Системное администрирование">Системное администрирование</option>
+                                        <option value="Робототехника">Робототехника</option>
+                                        <option value="Дизайн">Дизайн</option>
+                                        <option value="Экономика">Экономика</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-hint" id="priorityHint"></div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="comments">Дополнительная информация</label>
+                            <div class="input-field">
+                                <textarea id="comments" placeholder="Любая дополнительная информация, которую вы хотите сообщить приёмной комиссии" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-agreement">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="agreement" required>
+                                <span class="checkbox-text">Я подтверждаю, что все указанные данные верны и согласен на обработку персональных данных</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn-prev" onclick="prevStep(2)">
+                                <span class="btn-arrow">←</span>
+                                <span>Назад</span>
+                            </button>
+                            <button type="submit" class="btn-submit">
+                                <span>Отправить заявление</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="register-footer">
+                    <p>© 2026 Unik University · Приёмная комиссия</p>
+                    <div class="register-links">
+                        <a href="#">Правила приёма</a>
+                        <span>•</span>
+                        <a href="#">Контакты</a>
+                        <span>•</span>
+                        <a href="login.html">Уже есть аккаунт?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="regist.js">
+       
+    </script>
+</body>
+</html>

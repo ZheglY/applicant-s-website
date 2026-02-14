@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unik · Приёмная комиссия</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="light">
+    <header class="header">
+        <div class="container">
+            <div class="header_inner">
+                <div class="header_logo">
+                    <div class="header_logo_txt">Unik</div>
+                    <span class="header_label">приёмная комиссия</span>
+                </div> 
+                <nav class="nav">
+                    <a class="header_btn active" href="main.html">лента</a>
+                    <a class="header_btn" href="list.html">список поступающих</a>
+                    <a class="header_btn" href="stats.html">аналитика</a>
+                </nav> 
+                <div class="profile_info">
+                    <div class="logo_profil">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23004b7c'/%3E%3Ccircle cx='20' cy='13' r='6' fill='white'/%3E%3Cpath d='M6 30 C6 23, 14 22, 20 22 C26 22, 34 23, 34 30 L34 34 L6 34 Z' fill='white'/%3E%3C/svg%3E" alt="Аватар">
+                    </div>         
+                    <div class="profil_name">
+                        Препод Преподов
+                    </div>
+                    <div class="profile_menu_trigger">
+                        <button class="profile_menu_btn" id="settingsToggle">настройки</button>
+                        <div class="profile_menu" id="settingsMenu">
+                            <div class="settings_item theme" id="themeToggle">
+                                <img class="img_them" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004b7c'%3E%3Cpath d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 2a8 8 0 0 1 0 16z'/%3E%3C/svg%3E" width="18" height="18" alt="moon">
+                                <span id="themeText">Тёмная тема</span>
+                            </div>
+                            <div class="settings_item avatar">
+                                <span>Сменить аватар</span>
+                            </div>
+                            <div class="settings_item number">
+                                <span>Добавить номер</span>
+                            </div>
+                            <div class="settings_divider"></div>
+                            <a href="#" id="logout" class="settings_logout">Выйти</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main_header">
+        <h1 class="main_title">Главная страница</h1>
+        <p class="main_subtitle">здесь вы можете посмотреть новости и полезную информацию о нашем университете</p>
+    </div>
+
+    <!-- Контейнер для новостей -->
+    <div class="container" id="newsContainer">
+        <!-- Новости будут добавляться сюда динамически -->
+    </div>
+
+    <!-- ФИКСИРОВАННАЯ КНОПКА ДОБАВЛЕНИЯ НОВОСТИ (справа снизу) -->
+    <div class="btn_container">
+        <button class="add_news_btn" id="addNewsBtn">
+            <span class="plus_icon">+</span>
+            <span>Добавить новость</span>
+        </button>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО для добавления новости -->
+    <div class="modal_overlay" id="modalOverlay">
+        <div class="modal_content">
+            <div class="modal_header">
+                <h3>Создание новости</h3>
+                <button class="modal_close_btn" id="closeModalBtn">×</button>
+            </div>
+            <div class="modal_body">
+                <div class="form_group">
+                    <label>Заголовок новости</label>
+                    <input type="text" id="newsTitle" placeholder="Введите заголовок">
+                </div>
+                <div class="form_group">
+                    <label>Подзаголовок</label>
+                    <input type="text" id="newsSubtitle" placeholder="Введите вспомогательный текст">
+                </div>
+                <div class="form_group">
+                    <label>Текст статьи</label>
+                    <textarea id="newsText" placeholder="Введите текст статьи" rows="6"></textarea>
+                </div>
+                <div class="form_group">
+                    <label>URL изображения</label>
+                    <input type="text" id="newsImage" placeholder="Введите ссылку на изображение">
+                    <span class="input_hint">(оставьте пустым для стандартного изображения)</span>
+                </div>
+            </div>
+            <div class="modal_footer">
+                <button class="modal_cancel_btn" id="cancelModalBtn">Отмена</button>
+                <button class="modal_submit_btn" id="submitNewsBtn">Опубликовать</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer_content">
+            <span>© 2026 Unik • Приёмная комиссия</span>
+            <span>Обновлено: 12 февраля 2026</span>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
+
+
+
+
+
