@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, Form
+from core.config import security, config
+
 
 
 # Создаем роутер с префиксом и тегами
@@ -7,6 +9,26 @@ router = APIRouter(
     tags=["authentication"],  # Для группировки в Swagger UI
     responses={404: {"description": "Not found"}}  # Общие ответы
 )
+
+VALID_ROLES = ("student", "analyst", "admissions")
+
+
+@router.post("/login")
+def login(response: Response, role: str = Form("student", description="student | analyst | admissions")):
+    """
+    Вход в систему. role берётся из БД (студент/абитуриент, аналитик, приёмная комиссия).
+    Временный параметр role для тестирования разных ролей.
+    Роли: student, analyst, admissions
+    """
+    if role not in VALID_ROLES:
+        role = "student"
+    # TODO: uid и role получать из БД после проверки логина/пароля
+    token = security.create_access_token(
+        uid="12345",
+        data={"role": role}
+    )
+    response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token)
+    return {"message": "Успешный вход", "role": role}
 
 
 # @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

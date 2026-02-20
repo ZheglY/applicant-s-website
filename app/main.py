@@ -3,7 +3,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 # from app.core.config import settings
 # from app.core.logging_config import setup_logging
-from app.endpoints import auth_router, users_router  # Импортируем роутеры
+from endpoints import auth_router, users_router  # Импортируем роутеры
+import uvicorn
+
+from fastapi.templating import Jinja2Templates
+from fastapi.requests import Request
 
 # Настройка логирования
 # setup_logging()
@@ -16,6 +20,8 @@ app = FastAPI(
     docs_url="/api/docs",  # Swagger UI
     redoc_url="/api/redoc"  # ReDoc
 )
+
+templates = Jinja2Templates(directory="app/templates")
 
 # Подключаем статические файлы (если есть)
 # app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -33,3 +39,5 @@ async def index():
 
 
 
+if __name__ == "__main__":
+    uvicorn.run("main:app", reload=True)
