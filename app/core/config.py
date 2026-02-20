@@ -14,6 +14,7 @@ security = AuthX(config=config)
 @dataclass
 class DatabaseConfig:
     database_url: str
+    
 
 @dataclass
 class Config:
