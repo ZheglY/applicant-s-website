@@ -4,6 +4,7 @@ from environs import Env
 @dataclass
 class DatabaseConfig:
     database_url: str
+    
 
 @dataclass
 class Config:
