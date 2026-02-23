@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unik · Профиль абитуриента</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body data-theme="light">
+    <header class="header">
+        <div class="header_container">
+           <div class="header_left">
+                <div class="header_logo">Unik</div>
+                <a class="btn_back" href="list.html">
+                    <span class="back_arrow">←</span>
+                    <span>Назад</span>
+                </a>
+            </div>
+            <div class="profile_menu_trigger">
+                <button class="profile_menu_btn" id="settingsToggle">настройки</button>
+                <div class="profile_menu" id="settingsMenu">
+                    <div class="settings_item theme" id="themeToggle">
+                        <img class="img_them" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004b7c'%3E%3Cpath d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 2a8 8 0 0 1 0 16z'/%3E%3C/svg%3E" width="18" height="18" alt="moon">
+                        <span id="themeText">Тёмная тема</span>
+                    </div>
+                    <div class="settings_item avatar">
+                        <span>Сменить аватар</span>
+                    </div>
+                    <div class="settings_item number">
+                        <span>Добавить номер</span>
+                    </div>
+                    <div class="settings_divider"></div>
+                    <a href="login.html" id="logout" class="settings_logout">Выйти</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile_main">
+        <div class="profile_header">
+            <div class="container">
+                <div class="profile_avatar_section">
+                    <div class="avatar_wrapper">
+                        <div class="avatar_prof">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='60' fill='%232b7a9c'/%3E%3Ccircle cx='60' cy='40' r='20' fill='white'/%3E%3Cpath d='M20 90 C20 70, 40 65, 60 65 C80 65, 100 70, 100 90 L100 100 L20 100 Z' fill='white'/%3E%3C/svg%3E" alt="Аватар">
+                        </div>
+                    </div>
+                    <div class="profile_main_info">
+                        <h1 class="profil_name_in" id="profileName">Иванов Иван Иванович</h1>
+                        <div class="profile_meta">
+                            <span class="age_prof" id="profileAge">19 лет</span>
+                            <span class="profile_separator">•</span>
+                            <span class="region" id="profileRegion">г. Москва</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="profile_content">
+                <div class="profile_left">
+                    <div class="profile_card">
+                        <div class="card_header">
+                            <h3>Результаты ЕГЭ</h3>
+                            <span class="total_score" id="totalEgeScore">273</span>
+                        </div>
+                        <div class="subject_ege_container" id="egeSubjects">
+                            <div class="subject_ege">
+                                <span class="subject_name">Русский язык</span>
+                                <span class="subject_score">91</span>
+                            </div>
+                            <div class="subject_ege">
+                                <span class="subject_name">Математика (проф.)</span>
+                                <span class="subject_score">94</span>
+                            </div>
+                            <div class="subject_ege">
+                                <span class="subject_name">Информатика</span>
+                                <span class="subject_score">88</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile_card">
+                        <div class="card_header">
+                            <h3>Индивидуальные достижения</h3>
+                            <span class="bonus_points" id="bonusPoints">+5</span>
+                        </div>
+                        <div class="achievements_list" id="achievementsList">
+                            <div class="achievement_item">
+                                <span>Победитель олимпиады по математике</span>
+                                <span class="achievement_points">+3</span>
+                            </div>
+                            <div class="achievement_item">
+                                <span>Волонтёрская деятельность</span>
+                                <span class="achievement_points">+2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile_card">
+                        <div class="card_header">
+                            <h3>Документы</h3>
+                        </div>
+                        <div class="documents_list" id="documentsList">
+                            <div class="document_item">
+                                <div class="document_info">
+                                    <span class="document_name">Паспорт</span>
+                                </div>
+                                <span class="document_status verified">Подтверждён</span>
+                            </div>
+                            <div class="document_item">
+                                <div class="document_info">
+                                    <span class="document_name">Аттестат</span>
+                                </div>
+                                <span class="document_status pending">На проверке</span>
+                            </div>
+                            <div class="document_item">
+                                <div class="document_info">
+                                    <span class="document_name">Диплом олимпиады</span>
+                                </div>
+                                <span class="document_status verified">Подтверждён</span>
+                            </div>
+                        </div>
+                        <button class="btn_show_all">Показать все документы (5)</button>
+                    </div>
+                </div>
+
+                <div class="profile_right">
+                    <div class="profile_card">
+                        <div class="card_header">
+                            <h3>Выбранные направления</h3>
+                        </div>
+                        <div class="directions_list" id="directionsList">
+                            <div class="direction_card">
+                                <div class="direction_header">
+                                    <div>
+                                        <span class="direction_priority priority_1">Приоритет 1</span>
+                                        <h4 class="direction_name">Программная инженерия</h4>
+                                    </div>
+                                    <span class="direction_status accepted">Зачислен</span>
+                                </div>
+                                <div class="direction_details">
+                                    <div class="detail_row">
+                                        <span>Конкурсный балл:</span>
+                                        <span class="detail_value">273</span>
+                                    </div>
+                                    <div class="detail_row">
+                                        <span>Место в рейтинге:</span>
+                                        <span class="detail_value">12 из 45</span>
+                                    </div>
+                                    <div class="detail_row">
+                                        <span>Тип места:</span>
+                                        <span class="detail_value budget">Бюджет</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="direction_card">
+                                <div class="direction_header">
+                                    <div>
+                                        <span class="direction_priority priority_2">Приоритет 2</span>
+                                        <h4 class="direction_name">Искусственный интеллект</h4>
+                                    </div>
+                                    <span class="direction_status pending">Рассматривается</span>
+                                </div>
+                                <div class="direction_details">
+                                    <div class="detail_row">
+                                        <span>Конкурсный балл:</span>
+                                        <span class="detail_value">273</span>
+                                    </div>
+                                    <div class="detail_row">
+                                        <span>Место в рейтинге:</span>
+                                        <span class="detail_value">8 из 40</span>
+                                    </div>
+                                    <div class="detail_row">
+                                        <span>Тип места:</span>
+                                        <span class="detail_value budget">Бюджет</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="direction_card">
+                                <div class="direction_header">
+                                    <div>
+                                        <span class="direction_priority priority_3">Приоритет 3</span>
+                                        <h4 class="direction_name">Бизнес-аналитика</h4>
+                                    </div>
+                                    <span class="direction_status rejected">Отклонён</span>
+                                </div>
+                                <div class="direction_details">
+                                    <div class="detail_row">
+                                        <span>Конкурсный балл:</span>
+                                        <span class="detail_value">273</span>
+                                    </div>
+                                    <div class="detail_row">
+                                        <span>Причина:</span>
+                                        <span class="detail_value">Высокий конкурс</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile_card">
+                        <div class="card_header">
+                            <h3>Контакты</h3>
+                        </div>
+                        <div class="contacts_list">
+                            <div class="contact_item">
+                                <span class="contact_value">ivanov.ivan@example.com</span>
+                            </div>
+                            <div class="contact_item">
+                                <span class="contact_value">+7 (999) 123-45-67</span>
+                            </div>
+                            <div class="contact_item">
+                                <span class="contact_value">@ivanov_ivan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile_card status_control_card">
+                        <div class="card_header">
+                            <h3>Управление статусом</h3>
+                        </div>
+                        <div class="status_change_buttons">
+                            <button class="status_btn status_btn_accepted" onclick="changeStatus('accepted')">
+                                 Принять
+                            </button>
+                            <button class="status_btn status_btn_pending" onclick="changeStatus('pending')">
+                                 На рассмотрение
+                            </button>
+                            <button class="status_btn status_btn_rejected" onclick="changeStatus('rejected')">
+                                 Отклонить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer_content">
+            <span>© 2026 Unik • Приёмная комиссия</span>
+            <span>Обновлено: 14 февраля 2026</span>
+        </div>
+    </footer>
+
+    <script src="profile.js"></script>
+</body>
+</html>

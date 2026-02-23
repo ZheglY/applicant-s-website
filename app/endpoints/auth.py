@@ -1,6 +1,16 @@
-from fastapi import APIRouter, Depends, Response, Form
-from core.config import security, config
+from datetime import datetime
 
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from core.config import security, config
+from core.templates import templates
+from db.engine import get_session, SessionDep
+from schemas.user import ApplicantRegisterSchema
+from services.auth_service import register_user
 
 
 # Создаем роутер с префиксом и тегами
@@ -11,6 +21,35 @@ router = APIRouter(
 )
 
 VALID_ROLES = ("student", "analyst", "admissions")
+
+
+@router.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    """Страница регистрации абитуриента (шаблон regist.html)."""
+    return templates.TemplateResponse("regist.html", {"request": request})
+
+
+@router.get("/enter", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Страница входа."""
+    return templates.TemplateResponse("enter.html", {"request": request})
+
+
+@router.post("/register")
+async def register(
+    data: ApplicantRegisterSchema,
+    session: SessionDep,
+):
+    """
+    Регистрация нового абитуриента в БД с валидацией Pydantic.
+    """
+    
+    applicant = await register_user(session, data)
+    return {
+    "message": "Регистрация успешна",
+    "id": applicant.id,
+    "email": applicant.email,
+    }
 
 
 @router.post("/login")
@@ -31,32 +70,6 @@ def login(response: Response, role: str = Form("student", description="student |
     return {"message": "Успешный вход", "role": role}
 
 
-# @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-# async def register(
-#     user_data: UserCreate,
-#     db: Session = Depends(get_db)
-# ):
-#     """Регистрация нового пользователя"""
-#     # Создаем зависимости
-#     user_repo = UserRepository(db)
-#     auth_service = AuthService(user_repo)
-    
-#     # Вызываем бизнес-логику
-#     new_user = await auth_service.register(user_data)
-#     return new_user
-
-# @router.post("/login", response_model=Token)
-# async def login(
-#     email: str = Form(...),
-#     password: str = Form(...),
-#     db: Session = Depends(get_db)
-# ):
-#     """Вход в систему"""
-#     user_repo = UserRepository(db)
-#     auth_service = AuthService(user_repo)
-    
-#     tokens = await auth_service.authenticate(email, password)
-#     return tokens
 
 # @router.post("/logout")
 # async def logout(

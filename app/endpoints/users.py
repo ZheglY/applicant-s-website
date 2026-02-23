@@ -9,6 +9,7 @@ from fastapi import (
 from schemas.user import ApplicantSchema
 from core.config import security
 from core.roles import require_analyst, require_admissions
+from core.templates import templates
 
 
 router = APIRouter(
@@ -17,9 +18,13 @@ router = APIRouter(
     # dependencies=[Depends(get_current_user)]  # Все эндпоинты требуют авторизации
 )
 
-@router.get("/")
-async def news():
-    return {"message": "Тут заглушка для отображения новостной ленты"}
+@router.get("/news")
+async def news(request: Request):
+    """
+    Отображение новостной ленты. Является основной страницой сайта
+    Возвращает HTML-страницу
+    """
+    return templates.TemplateResponse("main.html", {"request": request})
 
 
 @router.get('/applicants/{student_id}', response_class=HTMLResponse)
@@ -28,7 +33,16 @@ async def get_applicant_account(request: Request, student_id: int):
     Отображение личного кабинета абитуриента по ID пользователя
     Возвращает HTML-страницу
     """
-    pass
+    return templates.TemplateResponse(
+        "lk.html", 
+        {
+        "request": request, 
+        "student_id": student_id, 
+        "applicant": "applicant_data", 
+        "title": f"Личный кабинет абитуриента {student_id}"
+        }
+        )
+
 #     try:
 #         applicant_data = get_applicant_by_id(student_id)
         
@@ -70,23 +84,6 @@ async def show_applicants_list(skip: int = 0, limit: int = 10):
     # return dict(list(fake_users.items())[:limit])
     return {"message": "Тут заглушка для отображения списка студентов"}
 
-
-@router.post(
-        "/register/",
-        summary="Регистрация нового пользователя",
-        description="Создает нового пользователя в базе данных и переводит на страницу новостей"
-        )
-async def applicant_registration(
-    user_data: ApplicantSchema,
-):
-    """
-    Регистрирует нового пользователя и переводит на страницу новостной ленты
-    """
-    return {
-        "username": "username", 
-        "email": "email", 
-        "age": "age", 
-    }
 
 
 # @router.patch('/applicant/{user_id}')
