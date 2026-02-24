@@ -35,6 +35,12 @@ async def login_page(request: Request):
     return templates.TemplateResponse("enter.html", {"request": request})
 
 
+@router.get("/login", response_class=HTMLResponse)
+async def login_redirect():
+    """Редирект на страницу входа (GET /auth/login → /auth/enter)."""
+    return RedirectResponse(url="/auth/enter", status_code=302)
+
+
 @router.post("/register")
 async def register(
     data: ApplicantRegisterSchema,

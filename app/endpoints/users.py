@@ -27,6 +27,18 @@ async def news(request: Request):
     return templates.TemplateResponse("main.html", {"request": request})
 
 
+@router.get("/list", response_class=HTMLResponse)
+async def list_page(request: Request):
+    """Страница со списком поступающих по направлениям."""
+    return templates.TemplateResponse("list.html", {"request": request})
+
+
+@router.get("/stats", response_class=HTMLResponse)
+async def stats_page(request: Request):
+    """Страница аналитики приёмной кампании."""
+    return templates.TemplateResponse("stats.html", {"request": request})
+
+
 @router.get('/applicants/{student_id}', response_class=HTMLResponse)
 async def get_applicant_account(request: Request, student_id: int):
     """

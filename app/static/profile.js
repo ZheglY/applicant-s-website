@@ -109,8 +109,9 @@ const applicantsData = {
 
 // Функция загрузки данных абитуриента
 function loadApplicantData() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const applicantId = urlParams.get('id') || '1';
+    // ID из path /users/applicants/123 или из query ?id=123
+    const pathMatch = window.location.pathname.match(/\/users\/applicants\/(\d+)/);
+    const applicantId = pathMatch ? pathMatch[1] : (new URLSearchParams(window.location.search).get('id') || '1');
     
     // Загружаем сохранённые статусы
     const savedStatuses = JSON.parse(localStorage.getItem('applicantStatuses')) || {};
@@ -286,8 +287,8 @@ function goBack() {
 
 // Функция смены статуса
 function changeStatus(status) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const applicantId = urlParams.get('id') || '1';
+    const pathMatch = window.location.pathname.match(/\/users\/applicants\/(\d+)/);
+    const applicantId = pathMatch ? pathMatch[1] : (new URLSearchParams(window.location.search).get('id') || '1');
     
     // Получаем название направления из карточки
     const firstDirection = document.querySelector('.direction_card');

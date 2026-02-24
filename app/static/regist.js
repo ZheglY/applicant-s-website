@@ -184,7 +184,7 @@
                 }
 
                 alert('Заявление успешно отправлено!\nПриёмная комиссия свяжется с вами в ближайшее время.');
-                window.location.href = '/index';
+                window.location.href = '/users/news';
             } catch (err) {
                 console.error(err);
                 alert('Ошибка сети. Попробуйте позже.');

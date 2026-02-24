@@ -78,7 +78,7 @@ function loadSavedStatuses() {
 
 // Функция для перехода в профиль
 function viewProfile(id) {
-    window.location.href = `lk.html?id=${id}`;
+    window.location.href = `/users/applicants/${id}`;
 }
 
 // Сохранение статуса (будет вызываться из lk.html)
