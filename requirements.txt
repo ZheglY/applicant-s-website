@@ -25,3 +25,4 @@ bcrypt
 jinja2
 asyncpg
 authx
+alembic

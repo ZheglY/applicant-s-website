@@ -1,70 +1,89 @@
-# applicant-s-website
+# Unik Admissions Portal
 
-# 📁 Архитектура проекта
+Веб‑приложение для работы приёмной комиссии и абитуриентов: новости, аналитика, регистрация, личный кабинет и список поступающих.
 
-## Структура директорий
+## Возможности
+- Новости приёмной комиссии 
+- Аналитика кампании 
+- Регистрация абитуриентов и личный кабинет.
+- Общий список поступающих и место в рейтинге 
 
+## Стек
+- FastAPI + Jinja2
+- SQLAlchemy (async) + PostgreSQL
+- AuthX (JWT в HTTP‑only cookie)
+
+## Быстрый старт через Docker (рекомендуется)
+
+1. Проверьте, что установлен Docker Desktop.
+2. Запустите сервисы:
+```
+docker compose up --build
+```
+3. Откройте: `http://localhost:8000`
+
+### Дефолтные учётные записи
+- Приёмная комиссия: `admin@unik.edu` / `admin`
+- Аналитик: `prepod@unik.edu` / `123456`
+
+### Порты
+- Приложение: `8000`
+- Postgres: `5433` на хосте → `5432` в контейнере
+
+## Локальный запуск без Docker
+
+1. Создайте виртуальное окружение и установите зависимости:
+```
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+```
+2. Подготовьте `.env` (пример в `.env.template`):
+```
+DATABASE_URL=postgresql+asyncpg://admin:123@localhost:5433/unik
+SECRET_KEY=change_me
+DEFAULT_ADMISSIONS_LOGIN=admin@unik.edu
+DEFAULT_ADMISSIONS_PASSWORD=admin
+DEFAULT_ANALYST_LOGIN=prepod@unik.edu
+DEFAULT_ANALYST_PASSWORD=123456
+```
+3. Убедитесь, что Postgres запущен, затем стартуйте приложение:
+```
+python app/main.py
+```
+4. Откройте: `http://127.0.0.1:8000`
+
+## Миграции (Alembic)
+
+Базовая миграция уже добавлена. Для применения:
+```
+alembic upgrade head
+```
+
+Создание новой миграции:
+```
+alembic revision --autogenerate -m "your message"
+```
+
+
+## Структура проекта
 ```
 app/
-├── core/ # Ядро приложения (конфигурации, базовые настройки)
-│ ├── init.py
-│ ├── config.py # Pydantic-модели для переменных окружения
-│ └── logging_config.py # Конфигурация логирования
-│
-├── db/ # Слой работы с базой данных
-│ ├── init.py
-│ ├── engine.py # Настройка движка SQLAlchemy
-│ ├── models.py # Декларативные модели БД
-│ └── session.py # Управление сессиями и зависимости
-│
-├── repositories/ # Паттерн Repository (абстракция доступа к данным)
-│ ├── init.py
-│ ├── base.py # Базовый репозиторий с общими CRUD операциями
-│ ├── user_repository.py # Репозиторий пользователей
-│ └── analytics_repository.py # Репозиторий для аналитических запросов
-│
-├── services/ # Бизнес-логика приложения
-│ ├── init.py
-│ ├── auth_service.py # Сервис аутентификации и авторизации
-│ └── user_service.py # Сервис управления пользователями
-│
-├── endpoints/ # HTTP маршруты (роутеры)
-│ ├── init.py
-│ ├── auth.py # Эндпоинты аутентификации
-│ └── users.py # Эндпоинты для работы с пользователями
-│
-├── schemas/ # Pydantic модели (сериализация/валидация)
-│ ├── init.py
-│ └── user.py # Схемы пользователя (запрос/ответ)
-│
-├── templates/ # Jinja2 шаблоны (для HTML-рендеринга)
-│ ├── base.html # Базовый шаблон
-│ ├── index.html # Главная страница
-│ └── profile.html # Страница профиля
-│
-├── static/ # Статические файлы (CSS, JS, изображения)
-│ ├── css/
-│ │ └── main.css
-│ ├── js/
-│ │ └── main.js
-│ └── img/
-│
-├── utils/ # Вспомогательные утилиты
-│ ├── init.py
-│ ├── helpers.py # Общие вспомогательные функции
-│ └── email.py # Работа с электронной почтой
-│
-├── main.py # Точка входа приложения
-│
-├──tests/ # Модульные и интеграционные тесты
-│
-└──logs/ # Директория для файлов логов
+├── core/                # конфиг, зависимости, роли, шаблоны
+├── db/                  # движок, модели, инициализация
+├── endpoints/           # роуты FastAPI
+├── repositories/        # доступ к данным (analitics_repository.py, user_repository.py)
+├── schemas/             # Pydantic‑схемы
+├── services/            # бизнес‑логика
+├── static/              # CSS/JS
+├── templates/           # Jinja2‑шаблоны страниц
+└── main.py              # точка входа
 ```
 
-## 🚀 Быстрый старт
+## Переменные окружения
+- `DATABASE_URL` — строка подключения к PostgreSQL.
+- `SECRET_KEY` — ключ подписи JWT.
+- `DEFAULT_ADMISSIONS_LOGIN` / `DEFAULT_ADMISSIONS_PASSWORD` — учётка приёмной комиссии.
+- `DEFAULT_ANALYST_LOGIN` / `DEFAULT_ANALYST_PASSWORD` — учётка аналитика.
 
-1. Клонировать репозиторий
-2. Создать виртуальное окружение
-3. Установить зависимости: `pip install -r requirements.txt`
-4. Скопировать `.env.example` в `.env` и настроить переменные
-5. Запустить приложение: `python app/main.py`
+
