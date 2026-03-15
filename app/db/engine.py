@@ -4,64 +4,39 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from db.models import Base
-from db.models import FacultyDirection
+from core.config import app_config
+from db.models import Base, FacultyDirection
 from db.seed import DIRECTIONS
 
 
-# Создание движка и сессии (echo=False - отключает логирование SQL запросов)
-# Драйвер aiosqlite — асинхронный | файл базы: applicants.db | 
-engine = create_async_engine("sqlite+aiosqlite:///applicants.db", echo=False)
-
-# создание сессии / expire_on_commit=False — объекты не инвалидируются после commit / class_=AsyncSession — используем асинхронную сессию
+engine = create_async_engine(app_config.db.database_url, echo=app_config.debug)
 new_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
 async def get_session() -> AsyncSession:
-    """
-    Dependency-функция. FastAPI будет: 
-    1. Создавать сессию
-    2. Передавать её в качестве зависимости в эндпоинты
-    3. Закрывать сессию после запроса автоматически
-    """
     async with new_session() as session:
         yield session
 
 
-# Теперь можно писать в роутере: async def route(session: SessionDep):
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
-async def setup_database():
-    """
-    1. Открывает соединение
-    2. Вызывает create_all()
-    3. Создаёт таблицы если их нет
-    """
+
+async def setup_database() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def seed_directions():
-    """
-    Функция для заполнения таблицы направлениями при запуске
-    """
-
-    async with new_session() as session: # Проверка: есть ли данные
+async def seed_directions() -> None:
+    async with new_session() as session:
         result = await session.execute(select(FacultyDirection.id).limit(1))
         if result.scalar_one_or_none() is not None:
-            return  # Если в таблице уже есть хотя бы одна запись → ничего не делаем.
+            return
 
-        # Заполнение таблицы направлениями факультетов если данных нет 
-        for fac_name, code, dir_name in DIRECTIONS:
-            session.add(FacultyDirection(
-                faculty_name=fac_name, direction_code=code, direction_name=dir_name
-            ))
+        for data in DIRECTIONS:
+            session.add(FacultyDirection(**data))
         await session.commit()
 
 
-async def drop_database():
-    """
-    Удаляет ВСЕ таблицы.
-    """
+async def drop_database() -> None:
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)  
+        await conn.run_sync(Base.metadata.drop_all)

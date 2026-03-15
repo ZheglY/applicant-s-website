@@ -1,5 +1,4 @@
-// Управление темой и выпадающим меню в шапке (лента, список, аналитика)
-document.addEventListener('DOMContentLoaded', function() {
+﻿document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('themeToggle');
     const themeText = document.getElementById('themeText');
     const body = document.body;
@@ -46,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (logout) {
         logout.addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.href = '/auth/enter';
+            window.location.href = '/auth/logout';
         });
     }
 });

@@ -6,8 +6,9 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from db.engine import setup_database, seed_directions
+from db.engine import setup_database, seed_directions, new_session
 from endpoints import auth_router, users_router
+from services.auth_service import ensure_staff_users
 
 _BASE_DIR = Path(__file__).resolve().parent
 
@@ -16,6 +17,8 @@ _BASE_DIR = Path(__file__).resolve().parent
 async def lifespan(app: FastAPI):
     await setup_database()
     await seed_directions()
+    async with new_session() as session:
+        await ensure_staff_users(session)
     yield
 
 

@@ -23,3 +23,5 @@ sqlalchemy>=2.0
 aiosqlite
 bcrypt
 jinja2
+asyncpg
+authx

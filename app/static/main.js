@@ -1,8 +1,4 @@
-// ===== ПОДКЛЮЧАЕМ ProfileManager =====
-// Этот файл теперь только для управления новостями
-
-// ===== УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ НОВОСТЕЙ =====
-const modalOverlay = document.getElementById('modalOverlay');
+﻿const modalOverlay = document.getElementById('modalOverlay');
 const addNewsBtn = document.getElementById('addNewsBtn');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const cancelModalBtn = document.getElementById('cancelModalBtn');
@@ -12,31 +8,30 @@ const newsTitle = document.getElementById('newsTitle');
 const newsSubtitle = document.getElementById('newsSubtitle');
 const newsText = document.getElementById('newsText');
 const newsImage = document.getElementById('newsImage');
+const newsContainer = document.getElementById('newsContainer');
+
+const canManageNews = !!addNewsBtn;
+let news = [];
 
 function openModal() {
+    if (!modalOverlay) return;
     modalOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
+    if (!modalOverlay) return;
     modalOverlay.classList.remove('active');
     document.body.style.overflow = '';
-    
-    newsTitle.value = '';
-    newsSubtitle.value = '';
-    newsText.value = '';
-    newsImage.value = '';
+    if (newsTitle) newsTitle.value = '';
+    if (newsSubtitle) newsSubtitle.value = '';
+    if (newsText) newsText.value = '';
+    if (newsImage) newsImage.value = '';
 }
 
-if (addNewsBtn) {
-    addNewsBtn.addEventListener('click', openModal);
-}
-if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', closeModal);
-}
-if (cancelModalBtn) {
-    cancelModalBtn.addEventListener('click', closeModal);
-}
+if (addNewsBtn) addNewsBtn.addEventListener('click', openModal);
+if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
 
 if (modalOverlay) {
     modalOverlay.addEventListener('click', function(e) {
@@ -52,26 +47,26 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// ===== УПРАВЛЕНИЕ НОВОСТЯМИ =====
-const newsContainer = document.getElementById('newsContainer');
-let news = JSON.parse(localStorage.getItem('news')) || [];
-
 function getDefaultImage() {
     return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"%3E%3Crect width="800" height="400" fill="%232b7a9c"/%3E%3Ctext x="400" y="200" font-family="Arial" font-size="32" fill="white" text-anchor="middle" dy=".3em"%3EUnik University%3C/text%3E%3C/svg%3E';
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function renderNews() {
     if (!newsContainer) return;
-    
+
     if (news.length === 0) {
-        newsContainer.innerHTML = '<div class="empty_news">📰 Пока нет новостей. Нажмите "Добавить новость", чтобы создать первую запись!</div>';
+        newsContainer.innerHTML = '<div class="empty_news">📰 Пока нет новостей. Здесь появятся публикации приёмной комиссии.</div>';
         return;
     }
-    
-    const sortedNews = [...news].sort((a, b) => b.id - a.id);
-    
+
     let html = '';
-    sortedNews.forEach(item => {
+    news.forEach(item => {
         html += `
             <div class="card_news" data-id="${item.id}">
                 <div class="card_img">
@@ -86,93 +81,80 @@ function renderNews() {
                 <div class="card_txt">
                     ${escapeHtml(item.text).replace(/\n/g, '<br>')}
                 </div>
-                <a class="delete_btn" onclick="deleteNews(${item.id})"></a>
+                ${canManageNews ? '<a class="delete_btn" onclick="deleteNews(' + item.id + ')"></a>' : ''}
             </div>
         `;
     });
-    
+
     newsContainer.innerHTML = html;
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-window.deleteNews = function(id) {
-    if (confirm('Вы уверены, что хотите удалить эту новость?')) {
-        news = news.filter(item => item.id !== id);
-        localStorage.setItem('news', JSON.stringify(news));
+async function fetchNews() {
+    try {
+        const response = await fetch('/users/news/data');
+        const result = await response.json();
+        news = result.items || [];
         renderNews();
-        if (window.ProfileManager) {
-            ProfileManager.showNotification('Новость удалена', 'info');
+    } catch (err) {
+        console.error(err);
+        if (newsContainer) {
+            newsContainer.innerHTML = '<div class="empty_news">Не удалось загрузить новости.</div>';
         }
     }
-};
+}
 
-function addNews() {
+async function addNews() {
+    if (!canManageNews) return;
+
     const title = newsTitle.value.trim();
     const subtitle = newsSubtitle.value.trim();
     const text = newsText.value.trim();
     const image = newsImage.value.trim();
-    
+
     if (!title || !subtitle || !text) {
-        if (window.ProfileManager) {
-            ProfileManager.showNotification('Пожалуйста, заполните все поля', 'warning');
-        }
+        alert('Пожалуйста, заполните все поля');
         return;
     }
-    
-    const newNews = {
-        id: Date.now(),
-        title: title,
-        subtitle: subtitle,
-        text: text,
-        image: image || null,
-        date: new Date().toLocaleDateString('ru-RU')
-    };
-    
-    news.unshift(newNews);
-    localStorage.setItem('news', JSON.stringify(news));
-    
-    closeModal();
-    renderNews();
-    
-    if (window.ProfileManager) {
-        ProfileManager.showNotification('Новость опубликована!', 'success');
+
+    try {
+        const response = await fetch('/users/news', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, subtitle, text, image })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            alert(result.detail || 'Ошибка публикации');
+            return;
+        }
+        news.unshift(result);
+        closeModal();
+        renderNews();
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка сети. Попробуйте позже.');
     }
 }
 
-if (submitNewsBtn) {
-    submitNewsBtn.addEventListener('click', addNews);
-}
+if (submitNewsBtn) submitNewsBtn.addEventListener('click', addNews);
 
-function initializeDemoNews() {
-    if (news.length === 0) {
-        const demoNews = [
-            {
-                id: 1,
-                title: 'Начало приёмной комиссии 2026 года',
-                subtitle: 'принято более 1500+ заявок на поступление',
-                text: 'Прием на обучение по программам бакалавриата и программам специалитета проводится на основании результатов единого государственного экзамена...',
-                image: null,
-                date: '12.02.2026'
-            },
-            {
-                id: 2,
-                title: 'День открытых дверей',
-                subtitle: 'приглашаем абитуриентов и их родителей',
-                text: '25 февраля 2026 года в 15:00 состоится день открытых дверей. Вы сможете познакомиться с факультетами...',
-                image: null,
-                date: '10.02.2026'
-            }
-        ];
-        news = demoNews;
-        localStorage.setItem('news', JSON.stringify(demoNews));
+window.deleteNews = async function(id) {
+    if (!canManageNews) return;
+    if (!confirm('Вы уверены, что хотите удалить эту новость?')) return;
+
+    try {
+        const response = await fetch(`/users/news/${id}`, { method: 'DELETE' });
+        if (!response.ok) {
+            const result = await response.json();
+            alert(result.detail || 'Ошибка удаления');
+            return;
+        }
+        news = news.filter(item => item.id !== id);
+        renderNews();
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка сети. Попробуйте позже.');
     }
-}
+};
 
-// Инициализация новостей
-initializeDemoNews();
-renderNews();
+fetchNews();
