@@ -84,7 +84,7 @@
                             <label for="fullname">ФИО полностью</label>
                             <div class="input-field">
                                 <span class="input-icon">👤</span>
-                                <input type="text" id="fullname" placeholder="Иванов Иван Иванович" required>
+                                <input type="text" id="fullname" placeholder="Фамилия Имя Отчество" required>
                             </div>
                         </div>
 
@@ -151,44 +151,14 @@
                         <div class="input-group">
                             <label>Результаты ЕГЭ</label>
                             <div class="ege-grid">
+                                {% for subject in subjects %}
                                 <div class="ege-item">
-                                    <span class="ege-subject">Русский язык</span>
+                                    <span class="ege-subject">{{ subject }}</span>
                                     <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
                                 </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">Математика (проф.)</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">Физика</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">Информатика</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">Обществознание</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">История</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">Химия</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">Биология</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
-                                <div class="ege-item">
-                                    <span class="ege-subject">Английский язык</span>
-                                    <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
-                                </div>
+                                {% endfor %}
                             </div>
-                            <div class="input-hint">* Укажите баллы только по сданным предметам</div>
+                            <div class="input-hint">* Для выбранного направления должны быть заполнены все его предметы</div>
                         </div>
                         
                         <div class="input-group">
@@ -217,65 +187,20 @@
                         <div class="input-group">
                             <label>Выберите направления (до 3-х)</label>
                             <div class="priorities-container" id="prioritiesContainer">
+                                {% for priority_number in [1, 2, 3] %}
                                 <div class="priority-item">
                                     <div class="priority-header">
-                                        <span class="priority-number">1</span>
+                                        <span class="priority-number">{{ priority_number }}</span>
                                         <span class="priority-label">Приоритет</span>
                                     </div>
                                     <select class="priority-select" onchange="updatePriorities()">
                                         <option value="">Выберите направление</option>
-                                        <option value="Программная инженерия">Программная инженерия</option>
-                                        <option value="Искусственный интеллект">Искусственный интеллект</option>
-                                        <option value="Бизнес-аналитика">Бизнес-аналитика</option>
-                                        <option value="Прикладная математика">Прикладная математика</option>
-                                        <option value="Информационная безопасность">Информационная безопасность</option>
-                                        <option value="Web-разработка">Web-разработка</option>
-                                        <option value="Системное администрирование">Системное администрирование</option>
-                                        <option value="Робототехника">Робототехника</option>
-                                        <option value="Дизайн">Дизайн</option>
-                                        <option value="Экономика">Экономика</option>
+                                        {% for direction in directions %}
+                                        <option value="{{ direction.direction_name }}">{{ direction.direction_name }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
-                                
-                                <div class="priority-item">
-                                    <div class="priority-header">
-                                        <span class="priority-number">2</span>
-                                        <span class="priority-label">Приоритет</span>
-                                    </div>
-                                    <select class="priority-select" onchange="updatePriorities()">
-                                        <option value="">Выберите направление</option>
-                                        <option value="Программная инженерия">Программная инженерия</option>
-                                        <option value="Искусственный интеллект">Искусственный интеллект</option>
-                                        <option value="Бизнес-аналитика">Бизнес-аналитика</option>
-                                        <option value="Прикладная математика">Прикладная математика</option>
-                                        <option value="Информационная безопасность">Информационная безопасность</option>
-                                        <option value="Web-разработка">Web-разработка</option>
-                                        <option value="Системное администрирование">Системное администрирование</option>
-                                        <option value="Робототехника">Робототехника</option>
-                                        <option value="Дизайн">Дизайн</option>
-                                        <option value="Экономика">Экономика</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="priority-item">
-                                    <div class="priority-header">
-                                        <span class="priority-number">3</span>
-                                        <span class="priority-label">Приоритет</span>
-                                    </div>
-                                    <select class="priority-select" onchange="updatePriorities()">
-                                        <option value="">Выберите направление</option>
-                                        <option value="Программная инженерия">Программная инженерия</option>
-                                        <option value="Искусственный интеллект">Искусственный интеллект</option>
-                                        <option value="Бизнес-аналитика">Бизнес-аналитика</option>
-                                        <option value="Прикладная математика">Прикладная математика</option>
-                                        <option value="Информационная безопасность">Информационная безопасность</option>
-                                        <option value="Web-разработка">Web-разработка</option>
-                                        <option value="Системное администрирование">Системное администрирование</option>
-                                        <option value="Робототехника">Робототехника</option>
-                                        <option value="Дизайн">Дизайн</option>
-                                        <option value="Экономика">Экономика</option>
-                                    </select>
-                                </div>
+                                {% endfor %}
                             </div>
                             <div class="input-hint" id="priorityHint"></div>
                         </div>
@@ -309,10 +234,6 @@
                 <div class="register-footer">
                     <p>© 2026 Unik University · Приёмная комиссия</p>
                     <div class="register-links">
-                        <a href="#">Правила приёма</a>
-                        <span>•</span>
-                        <a href="#">Контакты</a>
-                        <span>•</span>
                         <a href="/auth/enter">Уже есть аккаунт?</a>
                     </div>
                 </div>

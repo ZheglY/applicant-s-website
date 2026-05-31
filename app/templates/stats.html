@@ -1,721 +1,202 @@
 <!DOCTYPE html>
-
 <html lang="ru">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Unik · Аналитика</title>
-
     <link rel="stylesheet" href="/static/style.css">
-
 </head>
-
 <body data-theme="light">
-
     <header class="header">
-
         <div class="container">
-
             <div class="header_inner">
-
                 <div class="header_logo">
-
                     <div class="header_logo_txt">Unik</div>
-
                     <span class="header_label">приёмная комиссия</span>
+                </div>
 
-                </div> 
-
-                                <nav class="nav">
-
-                    <a class="header_btn " href="/users/news">Лента</a>
-
-                    <a class="header_btn " href="/users/list">Список поступающих</a>
-
-                    {% if current_user.role in ['admissions', 'analyst'] %}
+                <nav class="nav">
+                    <a class="header_btn" href="/users/news">Лента</a>
+                    <a class="header_btn" href="/users/list">Список поступающих</a>
                     <a class="header_btn active" href="/users/stats">Аналитика</a>
-                    {% elif current_user.role == 'student' %}
-                    <a class="header_btn" href="/users/applicants/{{ current_user.id }}">Кабинет</a>
-                    {% else %}
-                    <a class="header_btn" href="/auth/enter">Вход</a>
-                    {% endif %}
-
-                </nav>  
+                </nav>
 
                 <div class="profile_info">
-
-                    <div class="logo_profil">
-
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23004b7c'/%3E%3Ccircle cx='20' cy='13' r='6' fill='white'/%3E%3Cpath d='M6 30 C6 23, 14 22, 20 22 C26 22, 34 23, 34 30 L34 34 L6 34 Z' fill='white'/%3E%3C/svg%3E" alt="Аватар" id="profileAvatar">
-
-                    </div>         
-
-                    <div class="profil_name" id="profileName">
-                        {{ current_user.full_name }}
-                    </div>
-
+                    <div class="profil_name" id="profileName">{{ current_user.full_name }}</div>
                     <div class="profile_menu_trigger">
-
                         <button class="profile_menu_btn" id="settingsToggle">⚙️ настройки</button>
-
                         <div class="profile_menu" id="settingsMenu">
-
                             <div class="settings_item theme" id="themeToggle">
-
-                                <img class="img_them" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004b7c'%3E%3Cpath d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 2a8 8 0 0 1 0 16z'/%3E%3C/svg%3E" width="18" height="18" alt="moon">
-
                                 <span id="themeText">Тёмная тема</span>
-
                             </div>
-
-                            <div class="settings_item avatar" id="changeAvatarBtn">
-
-                                <span>👤 Сменить аватар</span>
-
-                            </div>
-
-                            <div class="settings_item number" id="changePhoneBtn">
-
-                                <span>📱 Добавить номер</span>
-
-                            </div>
-
-                            <div class="settings_item" id="changeNameBtn">
-
-                                <span>✏️ Сменить имя</span>
-
-                            </div>
-
                             <div class="settings_divider"></div>
-
-                            <a href="/auth/logout" id="logout" class="settings_logout">🚪 Выйти</a>
-
+                            <a href="/auth/logout" id="logout" class="settings_logout">Выйти</a>
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </header>
 
-
-
     <div class="dashboard_header">
-
         <h1 class="dashboard_title">Аналитика приёмной кампании</h1>
-
-        <p class="dashboard_subtitle">Приёмная кампания 2026 • бакалавриат и специалитет</p>
-
+        <p class="dashboard_subtitle">Показатели рассчитаны по текущим данным базы</p>
     </div>
-
-
-
-    <!-- БЛОК КЛЮЧЕВЫХ ПОКАЗАТЕЛЕЙ -->
 
     <div class="stats_grid">
-
         <div class="stats_card">
-
-            <div class="stats_icon">📊</div>
-
             <div class="stats_content">
-
-                <div class="stats_value">11 342</div>
-
-                <div class="stats_label">всего заявлений</div>
-
+                <div class="stats_value">{{ total_applicants }}</div>
+                <div class="stats_label">абитуриентов</div>
             </div>
-
-            <div class="stats_trend negative">−3 658</div>
-
+            <div class="stats_trend">из БД</div>
         </div>
 
         <div class="stats_card">
-
-            <div class="stats_icon">🎓</div>
-
             <div class="stats_content">
-
-                <div class="stats_value">4 210</div>
-
-                <div class="stats_label">бюджетные места</div>
-
+                <div class="stats_value">{{ total_applications }}</div>
+                <div class="stats_label">заявлений</div>
             </div>
-
-            <div class="stats_trend positive">+124</div>
-
+            <div class="stats_trend">все приоритеты</div>
         </div>
 
         <div class="stats_card">
-
-            <div class="stats_icon">💰</div>
-
             <div class="stats_content">
-
-                <div class="stats_value">6 890</div>
-
-                <div class="stats_label">платные места</div>
-
+                <div class="stats_value">{{ budget_places }}</div>
+                <div class="stats_label">бюджетных мест</div>
             </div>
-
-            <div class="stats_trend positive">+342</div>
-
+            <div class="stats_trend">план</div>
         </div>
 
         <div class="stats_card">
-
-            <div class="stats_icon">📈</div>
-
             <div class="stats_content">
+                <div class="stats_value">{{ paid_places }}</div>
+                <div class="stats_label">платных мест</div>
+            </div>
+            <div class="stats_trend">план</div>
+        </div>
 
-                <div class="stats_value">76.8</div>
-
+        <div class="stats_card">
+            <div class="stats_content">
+                <div class="stats_value">{{ avg_score }}</div>
                 <div class="stats_label">средний балл</div>
-
             </div>
-
-            <div class="stats_trend positive">+2.3</div>
-
+            <div class="stats_trend">по абитуриентам</div>
         </div>
 
         <div class="stats_card">
-
-            <div class="stats_icon">👥</div>
-
             <div class="stats_content">
-
-                <div class="stats_value">6.2</div>
-
-                <div class="stats_label">конкурс на место</div>
-
+                <div class="stats_value">{{ competition }}</div>
+                <div class="stats_label">конкурс на бюджет</div>
             </div>
-
-            <div class="stats_trend negative">−0.8</div>
-
+            <div class="stats_trend">заявл./место</div>
         </div>
-
-        <div class="stats_card">
-
-            <div class="stats_icon">⏰</div>
-
-            <div class="stats_content">
-
-                <div class="stats_value">28</div>
-
-                <div class="stats_label">дней до конца</div>
-
-            </div>
-
-            <div class="stats_trend">осталось</div>
-
-        </div>
-
     </div>
-
-
 
     <div class="dashboard">
-
-        <!-- 1. Карточка: Всего заявлений / план / дельта -->
-
         <div class="card">
-
-            <div class="card-title">Всего заявлений</div>
-
+            <div class="card-title">План приёма</div>
             <div class="metric-group">
-
                 <div class="metric-main">
-
-                    <span class="big-number">11 342</span>
-
-                    <span class="light-number">15 000</span>
-
-                    <span class="delta negative">Δ −3 658</span>
-
+                    <span class="big-number">{{ total_applications }}</span>
+                    <span class="light-number">{{ plan_total }}</span>
                 </div>
-
                 <div class="scale">
-
-                    <span class="scale-min">0</span>
-
+                    <span class="scale-min">заявления</span>
                     <div class="scale-bar">
-
-                        <div class="scale-fill" style="width: 76%;"></div>
-
+                        <div class="scale-fill" style="width: {{ plan_percent }}%;"></div>
                     </div>
-
-                    <span class="scale-max">15 000</span>
-
+                    <span class="scale-max">места</span>
                 </div>
-
-                <div class="card-footnote">план приёма • бюджет+платное</div>
-
+                <div class="card-footnote">бюджетные и платные места по всем направлениям</div>
             </div>
-
         </div>
 
-
-
-        <!-- 2. Карточка: Бюджетные места / конкурс -->
-
         <div class="card">
-
-            <div class="card-title">Бюджетные места <span class="subtitle">конкурс</span></div>
-
-            <div class="bars">
-
-                <div class="bar-item">
-
-                    <span>4 820</span>
-
-                    <div class="bar" style="height: 48px;"></div>
-
-                    <span class="bar-label">ИТ</span>
-
-                </div>
-
-                <div class="bar-item">
-
-                    <span>3 950</span>
-
-                    <div class="bar" style="height: 40px;"></div>
-
-                    <span class="bar-label">эк</span>
-
-                </div>
-
-                <div class="bar-item">
-
-                    <span>2 840</span>
-
-                    <div class="bar" style="height: 28px;"></div>
-
-                    <span class="bar-label">гум</span>
-
-                </div>
-
-                <div class="bar-item">
-
-                    <span>1 920</span>
-
-                    <div class="bar" style="height: 19px;"></div>
-
-                    <span class="bar-label">юр</span>
-
-                </div>
-
-                <div class="bar-item">
-
-                    <span>1 280</span>
-
-                    <div class="bar" style="height: 13px;"></div>
-
-                    <span class="bar-label">мед</span>
-
-                </div>
-
-            </div>
-
-            <div class="scale">
-
-                <span class="scale-min">чел./место</span>
-
-                <div class="scale-bar">
-
-                    <div class="scale-fill" style="width: 65%;"></div>
-
-                </div>
-
-                <span class="scale-max">6.2</span>
-
-            </div>
-
-            <div class="card-footnote">средний конкурс на бюджет</div>
-
-        </div>
-
-
-
-        <!-- 3. Карточка: Даты активностей -->
-
-        <div class="card">
-
-            <div class="card-title">Вступительные испытания</div>
-
-            <div class="days_header">
-
-                <span class="day">12, вт</span>
-
-                <span class="day">13, ср</span>
-
-                <span class="day">14, чт</span>
-
-                <span class="day">15, пт</span>
-
-                <span class="day">16, сб</span>
-
-                <span class="day">17, вс</span>
-
-                <span class="day">18, пн</span>
-
-            </div>
-
-            <div class="days_activities">
-
-                <div class="activity_item">экскурсия</div>
-
-                <div class="activity_item">встреча с комиссией</div>
-
-                <div class="activity_item">проверка результатов</div>
-
-                <div class="activity_item">проверка результатов</div>
-
-                <div class="activity_item">ничего</div>
-
-                <div class="activity_item">выходной</div>
-
-                <div class="activity_item">выходной</div>
-
-            </div>
-
-        </div>
-
-        
-
-        <!-- 4. Карточка: экзамены -->
-
-        <div class="card">
-
-            <div class="card-title">Вступительные экзамены</div>
-
-            <div class="exam_icons">
-
-                <span class="exam_item">русский</span>
-
-                <span class="exam_item">математика проф.</span>
-
-                <span class="exam_item">физика</span>
-
-                <span class="exam_item">история</span>
-
-                <span class="exam_item">математика база</span>
-
-                <span class="exam_item">химия</span>
-
-                <span class="exam_item">английский яз.</span>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- 5. Карточка: Количество заявлений по приоритетам -->
-
-        <div class="card">
-
             <div class="card-title">По приоритетам</div>
-
             <div class="hundreds">
-
                 <div class="hundred-item">
-
-                    <span class="hundred_number">1 240</span>
-
+                    <span class="hundred_number">{{ priority1 }}</span>
                     <span class="hundred_label">1 приор.</span>
-
                 </div>
-
                 <div class="hundred-item">
-
-                    <span class="hundred_number">3 810</span>
-
+                    <span class="hundred_number">{{ priority2 }}</span>
                     <span class="hundred_label">2 приор.</span>
-
                 </div>
-
                 <div class="hundred-item">
-
-                    <span class="hundred_number">6 290</span>
-
+                    <span class="hundred_number">{{ priority3 }}</span>
                     <span class="hundred_label">3 приор.</span>
-
                 </div>
-
             </div>
-
             <div class="label-block">
-
                 <span class="label">всего заявлений</span>
-
-                <span class="label-value">11 342</span>
-
+                <span class="label-value">{{ total_applications }}</span>
             </div>
-
         </div>
 
-
-
-        <!-- 6. Карточка: Средний балл ЕГЭ по направлениям -->
-
         <div class="card">
-
-            <div class="card-title">Средний балл ЕГЭ</div>
-
+            <div class="card-title">Статусы заявлений</div>
             <div class="hundreds">
-
                 <div class="hundred-item">
-
-                    <span class="hundred_number">82.4</span>
-
-                    <span class="hundred_label">бюджет</span>
-
+                    <span class="hundred_number">{{ accepted_count }}</span>
+                    <span class="hundred_label">зачислено</span>
                 </div>
-
                 <div class="hundred-item">
-
-                    <span class="hundred_number">71.3</span>
-
-                    <span class="hundred_label">платное</span>
-
+                    <span class="hundred_number">{{ pending_count }}</span>
+                    <span class="hundred_label">на рассмотр.</span>
                 </div>
-
                 <div class="hundred-item">
-
-                    <span class="hundred_number">76.8</span>
-
-                    <span class="hundred_label">целевое</span>
-
+                    <span class="hundred_number">{{ rejected_count }}</span>
+                    <span class="hundred_label">отклонено</span>
                 </div>
-
             </div>
-
-            <div class="label-block">
-
-                <span class="label">общий средний</span>
-
-                <span class="label-value">77.9</span>
-
-            </div>
-
+            <div class="card-footnote">значения берутся из applicant_priorities.status</div>
         </div>
 
-
-
-        <!-- 7. Карточка: Динамика подачи заявлений (неделя) -->
+        <div class="card">
+            <div class="card-title">Популярные направления</div>
+            <div class="bars">
+                {% for direction in popular_directions[:5] %}
+                <div class="bar-item">
+                    <span>{{ direction.applications }}</span>
+                    <div class="bar" style="height: {{ 12 + direction.fill_percent }}px;"></div>
+                    <span class="bar-label">{{ direction.name[:10] }}</span>
+                </div>
+                {% else %}
+                <div class="card-footnote">Заявлений пока нет</div>
+                {% endfor %}
+            </div>
+            <div class="card-footnote">первые пять направлений по количеству заявлений</div>
+        </div>
 
         <div class="card">
-
-            <div class="card-title">Динамика подачи</div>
-
+            <div class="card-title">Конкурс по направлениям</div>
             <div class="delta-table">
-
+                {% for direction in popular_directions[:6] %}
                 <div class="delta-row">
-
-                    <span>пн</span>
-
-                    <span>8 200</span>
-
-                    <span class="delta positive">▲ +1 240</span>
-
+                    <span>{{ direction.name }}</span>
+                    <span>{{ direction.applications }} заявл.</span>
+                    <span class="delta positive">{{ direction.competition }}</span>
                 </div>
-
+                {% else %}
                 <div class="delta-row">
-
-                    <span>вт</span>
-
-                    <span>9 150</span>
-
-                    <span class="delta positive">▲ +950</span>
-
+                    <span>Нет данных</span>
+                    <span>0 заявл.</span>
+                    <span class="delta">0</span>
                 </div>
-
-                <div class="delta-row">
-
-                    <span>ср</span>
-
-                    <span>10 340</span>
-
-                    <span class="delta positive">▲ +1 190</span>
-
-                </div>
-
-                <div class="delta-row">
-
-                    <span>чт</span>
-
-                    <span>11 010</span>
-
-                    <span class="delta positive">▲ +670</span>
-
-                </div>
-
-                <div class="delta-row">
-
-                    <span>пт</span>
-
-                    <span>11 342</span>
-
-                    <span class="delta positive">▲ +332</span>
-
-                </div>
-
+                {% endfor %}
             </div>
-
         </div>
-
-
-
-        <!-- 8. Карточка: Изменение конкурса по месяцам -->
-
-        <div class="card">
-
-            <div class="card-title">Конкурс на бюджет</div>
-
-            <div class="line-chart">
-
-                <div class="chart-values">
-
-                    <span class="delta positive">+5.2</span>
-
-                    <span class="delta positive">+3.8</span>
-
-                    <span class="delta negative">−1.4</span>
-
-                    <span class="delta positive">+2.1</span>
-
-                    <span class="delta positive">+0.9</span>
-
-                </div>
-
-                <div class="months">
-
-                    <span>Янв</span>
-
-                    <span>Фев</span>
-
-                    <span>Мар</span>
-
-                    <span>Апр</span>
-
-                    <span>Май</span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- 9. Карточка: Целевой приём / квота -->
-
-        <div class="card">
-
-            <div class="card-title">Целевая квота</div>
-
-            <div class="metric-main">
-
-                <span class="big-number">342</span>
-
-                <span class="light-number">500</span>
-
-                <span class="delta negative">Δ −158</span>
-
-            </div>
-
-            <div class="card-footnote">осталось мест по квоте</div>
-
-        </div>
-
-
-
-        <!-- 10. Карточка: Итоги приёма 2025 -->
-
-        <div class="card">
-
-            <div class="card-title">Итоги 2025</div>
-
-            <div class="metric-main">
-
-                <span class="big-number">4 210</span>
-
-                <span class="light-number">4 500</span>
-
-                <span class="delta negative">Δ −290</span>
-
-            </div>
-
-            <div class="card-footnote">зачислено на 1 курс</div>
-
-        </div>
-
-
-
-        <!-- 11. Карточка: Количество оригиналов -->
-
-        <div class="card">
-
-            <div class="card-title">Оригиналы документов</div>
-
-            <div class="metric-main">
-
-                <span class="big-number">3 892</span>
-
-                <span class="light-number">5 100</span>
-
-                <span class="delta negative">Δ −1 208</span>
-
-            </div>
-
-            <div class="scale">
-
-                <span class="scale-min">0</span>
-
-                <div class="scale-bar">
-
-                    <div class="scale-fill" style="width: 76%;"></div>
-
-                </div>
-
-                <span class="scale-max">5 100</span>
-
-            </div>
-
-            <div class="card-footnote">от общего числа заявлений</div>
-
-        </div>
-
     </div>
 
-
-
     <footer class="footer">
-
         <div class="footer_content">
-
             <span>© 2026 Unik • Приёмная комиссия</span>
-
-            <span>Обновлено: 12 февраля 2026</span>
-
+            <span>Данные из базы приложения</span>
         </div>
-
     </footer>
 
-
-
     <script src="/static/profile-manager.js"></script>
-
     <script src="/static/stats.js"></script>
-
 </body>
-
 </html>

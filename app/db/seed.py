@@ -15,7 +15,7 @@ DIRECTIONS = [
         "direction_name": "Искусственный интеллект",
         "budget_places": 15,
         "paid_places": 16,
-        "subjects": ["Математика", "Информатика", "Физика"],
+        "subjects": ["Математика", "Информатика", "Русский язык"],
     },
     {
         "faculty_name": "Университет",
@@ -31,7 +31,7 @@ DIRECTIONS = [
         "direction_name": "Прикладная математика",
         "budget_places": 10,
         "paid_places": 12,
-        "subjects": ["Математика", "Физика", "Информатика"],
+        "subjects": ["Математика", "Физика", "Русский язык"],
     },
     {
         "faculty_name": "Университет",
@@ -39,7 +39,7 @@ DIRECTIONS = [
         "direction_name": "Информационная безопасность",
         "budget_places": 13,
         "paid_places": 14,
-        "subjects": ["Математика", "Информатика", "Физика"],
+        "subjects": ["Математика", "Информатика", "Русский язык"],
     },
     {
         "faculty_name": "Университет",
@@ -47,7 +47,7 @@ DIRECTIONS = [
         "direction_name": "Web-разработка",
         "budget_places": 9,
         "paid_places": 10,
-        "subjects": ["Информатика", "Веб-дизайн", "Русский язык"],
+        "subjects": ["Математика", "Информатика", "Русский язык"],
     },
     {
         "faculty_name": "Университет",
@@ -55,7 +55,7 @@ DIRECTIONS = [
         "direction_name": "Системное администрирование",
         "budget_places": 7,
         "paid_places": 9,
-        "subjects": ["Сети", "Linux", "Информатика"],
+        "subjects": ["Математика", "Информатика", "Русский язык"],
     },
     {
         "faculty_name": "Университет",
@@ -63,7 +63,7 @@ DIRECTIONS = [
         "direction_name": "Робототехника",
         "budget_places": 6,
         "paid_places": 8,
-        "subjects": ["Математика", "Физика", "Информатика"],
+        "subjects": ["Математика", "Физика", "Русский язык"],
     },
     {
         "faculty_name": "Университет",

@@ -12,6 +12,12 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app ./app
+# Копируем ВСЁ, а не только app
+COPY . .
+
+# Или если нужно именно так:
+# COPY app ./app
+# COPY alembic ./alembic
+# Также нужны db? Но db уже внутри app/app, смотрите ниже
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

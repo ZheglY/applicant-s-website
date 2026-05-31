@@ -2,7 +2,7 @@
 from fastapi import Depends, HTTPException
 from authx import TokenPayload
 
-from core.config import security
+from app.core.config import security
 
 
 def require_analyst(payload: TokenPayload = Depends(security.access_token_required)) -> TokenPayload:

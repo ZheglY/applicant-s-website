@@ -117,11 +117,3 @@ if (loginForm) {
         }
     });
 }
-
-const forgotLink = document.querySelector('.forgot-link');
-if (forgotLink) {
-    forgotLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        showNotification('Обратитесь к администратору для восстановления пароля', 'info');
-    });
-}

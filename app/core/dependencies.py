@@ -1,9 +1,9 @@
 from authx import TokenPayload
 from fastapi import HTTPException, Request
 
-from core.config import security
-from db.engine import SessionDep
-from repositories.user_repository import get_by_id
+from app.core.config import security
+from app.db.engine import SessionDep
+from app.repositories.user_repository import get_by_id
 
 
 def _extract_user_id(payload: TokenPayload) -> int | None:

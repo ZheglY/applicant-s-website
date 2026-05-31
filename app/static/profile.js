@@ -45,9 +45,8 @@
     }
 }
 
-async function updateStatus(status) {
+async function updateStatus(status, directionId) {
     const applicantId = document.body.dataset.applicantId;
-    const directionId = document.body.dataset.directionId || document.querySelector('.direction_card')?.dataset?.directionId;
     if (!applicantId || !directionId) return;
 
     try {
@@ -74,7 +73,7 @@ async function updateStatus(status) {
             rejected: 'rejected'
         }[status];
 
-        const card = document.querySelector('.direction_card');
+        const card = document.querySelector(`.direction_card[data-direction-id="${directionId}"]`);
         if (card) {
             const badge = card.querySelector('.direction_status');
             if (badge) {
@@ -96,7 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.status_btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const status = btn.dataset.status;
-            if (status) updateStatus(status);
+            const directionId = btn.dataset.directionId;
+            if (status && directionId) updateStatus(status, directionId);
         });
     });
 });

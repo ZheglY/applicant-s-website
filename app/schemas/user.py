@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -39,9 +39,13 @@ class ApplicantRegisterSchema(BaseModel):
         for k, val in v.items():
             if val and str(val).strip():
                 try:
-                    result[k.strip()] = int(val)
+                    score = int(val)
                 except (ValueError, TypeError):
                     pass
+                else:
+                    if not 0 <= score <= 100:
+                        raise ValueError("EGE score must be between 0 and 100")
+                    result[k.strip()] = score
         return result if result else None
 
     @field_validator("email")
@@ -76,6 +80,8 @@ class ApplicantRegisterSchema(BaseModel):
         clean = [p.strip() for p in v if p and p.strip()]
         if not clean:
             raise ValueError("Select at least one direction")
+        if len(set(clean)) != len(clean):
+            raise ValueError("Directions must not repeat")
         if len(clean) > 3:
             raise ValueError("Maximum 3 directions")
         return clean[:3]
@@ -104,3 +110,29 @@ class UserLoginSchema(BaseModel):
 
     username: str
     password: str
+
+
+class NewsCreateSchema(BaseModel):
+    title: str
+    subtitle: str
+    text: str
+    image: Optional[str] = None
+
+    @field_validator("title", "subtitle", "text")
+    @classmethod
+    def required_text(cls, v: str) -> str:
+        value = v.strip()
+        if not value:
+            raise ValueError("Field is required")
+        return value
+
+    @field_validator("image")
+    @classmethod
+    def clean_image(cls, v: Optional[str]) -> Optional[str]:
+        value = (v or "").strip()
+        return value or None
+
+
+class ApplicantStatusUpdateSchema(BaseModel):
+    direction_id: int
+    status: Literal["accepted", "pending", "rejected"]

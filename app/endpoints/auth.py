@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
-from core.config import auth_config, security
-from core.templates import templates
-from db.engine import SessionDep
-from schemas.user import ApplicantRegisterSchema, UserLoginSchema
-from services.auth_service import authenticate_user, register_user
+from app.core.config import auth_config, security
+from app.core.templates import templates
+from app.db.engine import SessionDep
+from app.schemas.user import ApplicantRegisterSchema, UserLoginSchema
+from app.repositories.user_repository import list_directions
+from app.services.auth_service import authenticate_user, register_user
 
 
 router = APIRouter(
@@ -16,8 +17,17 @@ router = APIRouter(
 
 
 @router.get("/register", response_class=HTMLResponse)
-async def register_page(request: Request):
-    return templates.TemplateResponse("regist.html", {"request": request})
+async def register_page(request: Request, session: SessionDep):
+    directions = await list_directions(session)
+    subjects = sorted({subject for direction in directions for subject in (direction.subjects or [])})
+    return templates.TemplateResponse(
+        "regist.html",
+        {
+            "request": request,
+            "directions": directions,
+            "subjects": subjects,
+        },
+    )
 
 
 @router.get("/enter", response_class=HTMLResponse)

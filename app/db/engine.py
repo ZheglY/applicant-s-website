@@ -4,9 +4,9 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from core.config import app_config
-from db.models import Base, FacultyDirection
-from db.seed import DIRECTIONS
+from app.core.config import app_config
+from app.db.models import Base, FacultyDirection
+from app.db.seed import DIRECTIONS
 
 
 engine = create_async_engine(app_config.db.database_url, echo=app_config.debug)

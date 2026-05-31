@@ -2,10 +2,10 @@ import re
 
 from fastapi import HTTPException
 
-from core.config import app_config
-from db.models import Applicant, ApplicantPriority
-from repositories.user_repository import get_by_email, get_by_login, get_direction_by_name
-from utils.hash_password import hash_password, verify_password
+from app.core.config import app_config
+from app.db.models import Applicant, ApplicantPriority
+from app.repositories.user_repository import get_by_email, get_by_login, get_direction_by_name
+from app.utils.hash_password import hash_password, verify_password
 
 
 def _parse_achievements(text: str | None) -> list[dict] | None:
@@ -31,7 +31,32 @@ async def register_user(session, data):
             detail="EGE scores are required",
         )
 
-    total_score = sum(data.ege_scores.values())
+    selected_directions = []
+    for direction_name in data.priorities:
+        direction = await get_direction_by_name(session, direction_name)
+        if not direction:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Direction not found: {direction_name}",
+            )
+        missing_subjects = [
+            subject
+            for subject in (direction.subjects or [])
+            if subject not in data.ege_scores
+        ]
+        if missing_subjects:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Missing EGE scores for {direction.direction_name}: {', '.join(missing_subjects)}",
+            )
+        selected_directions.append(direction)
+
+    achievements = _parse_achievements(data.achievements)
+    bonus_points = sum(item["points"] for item in achievements or [])
+    total_score = max(
+        sum(data.ege_scores[subject] for subject in direction.subjects)
+        for direction in selected_directions
+    ) + bonus_points
     last_name, first_name, middle_name = data.split_fullname()
 
     applicant = Applicant(
@@ -47,7 +72,7 @@ async def register_user(session, data):
         total_score=total_score,
         role="student",
         sex=True,
-        achievements=_parse_achievements(data.achievements),
+        achievements=achievements,
         school=data.school,
         region=None,
         ege_scores=data.ege_scores,
@@ -56,13 +81,7 @@ async def register_user(session, data):
     session.add(applicant)
     await session.flush()
 
-    for index, direction_name in enumerate(data.priorities, start=1):
-        direction = await get_direction_by_name(session, direction_name)
-        if not direction:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Direction not found: {direction_name}",
-            )
+    for index, direction in enumerate(selected_directions, start=1):
         session.add(
             ApplicantPriority(
                 applicant_id=applicant.id,
@@ -95,24 +114,27 @@ async def ensure_staff_users(session) -> None:
             "email": app_config.default_admissions_login,
             "password": app_config.default_admissions_password,
             "role": "admissions",
-            "last_name": "Admin",
-            "first_name": "Admissions",
-            "middle_name": "Office",
+            "last_name": "Петрова",
+            "first_name": "Ирина",
+            "middle_name": "Сергеевна",
         },
         {
             "login": app_config.default_analyst_login,
             "email": app_config.default_analyst_login,
             "password": app_config.default_analyst_password,
             "role": "analyst",
-            "last_name": "Analyst",
-            "first_name": "Admissions",
-            "middle_name": "Office",
+            "last_name": "Соколов",
+            "first_name": "Алексей",
+            "middle_name": "Викторович",
         },
     ]
 
     for user_data in defaults:
         existing = await get_by_login(session, user_data["login"])
         if existing:
+            existing.last_name = user_data["last_name"]
+            existing.first_name = user_data["first_name"]
+            existing.middle_name = user_data["middle_name"]
             if existing.role != user_data["role"]:
                 existing.role = user_data["role"]
             if not verify_password(user_data["password"], existing.password_hash):

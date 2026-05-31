@@ -1,7 +1,7 @@
 from sqlalchemy import select, update
 from sqlalchemy.orm import selectinload
 
-from db.models import Applicant, ApplicantPriority, FacultyDirection
+from app.db.models import Applicant, ApplicantPriority, FacultyDirection
 
 
 async def get_by_id(session, user_id: int) -> Applicant | None:
@@ -60,8 +60,8 @@ async def set_priority_status(
     applicant_id: int,
     direction_id: int,
     status: str,
-) -> None:
-    await session.execute(
+) -> bool:
+    result = await session.execute(
         update(ApplicantPriority)
         .where(
             ApplicantPriority.applicant_id == applicant_id,
@@ -70,3 +70,4 @@ async def set_priority_status(
         .values(status=status)
     )
     await session.commit()
+    return (result.rowcount or 0) > 0

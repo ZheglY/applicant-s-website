@@ -2,15 +2,15 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
-from sqlalchemy import func, select
+from sqlalchemy import select
 
-from core.dependencies import get_current_user, get_current_user_page, get_optional_user
-from core.roles import require_admissions, require_staff
-from core.templates import templates
-from db.engine import SessionDep
-from db.models import Applicant, ApplicantPriority, News
-from repositories.analitics_repository import get_summary
-from repositories.user_repository import (
+from app.core.dependencies import get_current_user, get_current_user_page, get_optional_user
+from app.core.templates import templates
+from app.db.engine import SessionDep
+from app.db.models import Applicant, ApplicantPriority, News
+from app.repositories.analitics_repository import get_summary
+from app.schemas.user import ApplicantStatusUpdateSchema, NewsCreateSchema
+from app.repositories.user_repository import (
     get_applicant_with_priorities,
     get_by_id,
     list_directions,
@@ -24,9 +24,9 @@ router = APIRouter(
 )
 
 STATUS_LABELS = {
-    "accepted": "Accepted",
-    "pending": "Pending",
-    "rejected": "Rejected",
+    "accepted": "Зачислен",
+    "pending": "На рассмотрении",
+    "rejected": "Отклонён",
 }
 
 STATUS_CLASSES = {
@@ -73,6 +73,13 @@ def _score_for_subject(ege_scores: dict | None, subject: str) -> int | None:
     return None
 
 
+def _competitive_score(applicant: Applicant, subjects: list[str] | None) -> int:
+    score = 0
+    for subject in subjects or []:
+        score += _score_for_subject(applicant.ege_scores, subject) or 0
+    return score
+
+
 @router.get("/news", response_class=HTMLResponse)
 async def news(request: Request, current_user=Depends(get_current_user_page)):
     can_manage_news = current_user.role == "admissions"
@@ -106,26 +113,18 @@ async def news_data(session: SessionDep, current_user=Depends(get_current_user))
 
 @router.post("/news")
 async def create_news(
-    payload: dict,
+    payload: NewsCreateSchema,
     session: SessionDep,
     current_user=Depends(get_current_user_page),
 ):
     if current_user.role != "admissions":
         raise HTTPException(status_code=403, detail="Admissions only")
 
-    title = (payload.get("title") or "").strip()
-    subtitle = (payload.get("subtitle") or "").strip()
-    text = (payload.get("text") or "").strip()
-    image = (payload.get("image") or None)
-
-    if not title or not subtitle or not text:
-        raise HTTPException(status_code=400, detail="All fields are required")
-
     news = News(
-        title=title,
-        subtitle=subtitle,
-        text=text,
-        image_url=image,
+        title=payload.title,
+        subtitle=payload.subtitle,
+        text=payload.text,
+        image_url=payload.image,
         author_id=current_user.id,
     )
     session.add(news)
@@ -171,7 +170,6 @@ async def list_page(request: Request, session: SessionDep, current_user=Depends(
             select(ApplicantPriority, Applicant)
             .join(Applicant, Applicant.id == ApplicantPriority.applicant_id)
             .where(ApplicantPriority.direction_id == direction.id)
-            .order_by(Applicant.total_score.desc(), Applicant.id)
         )
         applicants = []
         for priority, applicant in result.all():
@@ -179,6 +177,7 @@ async def list_page(request: Request, session: SessionDep, current_user=Depends(
                 _score_for_subject(applicant.ege_scores, subject)
                 for subject in direction.subjects
             ]
+            competitive_score = _competitive_score(applicant, direction.subjects)
             status = priority.status or "pending"
             applicants.append(
                 {
@@ -186,12 +185,13 @@ async def list_page(request: Request, session: SessionDep, current_user=Depends(
                     "full_name": applicant.full_name,
                     "age": _calc_age(applicant.birth_date),
                     "scores": scores,
-                    "total_score": applicant.total_score,
+                    "total_score": competitive_score,
                     "status": status,
                     "status_label": STATUS_LABELS.get(status, "Pending"),
                     "status_class": STATUS_CLASSES.get(status, "status_pending"),
                 }
             )
+        applicants.sort(key=lambda item: (-item["total_score"], item["id"]))
 
         direction_views.append(
             {
@@ -214,13 +214,17 @@ async def list_page(request: Request, session: SessionDep, current_user=Depends(
     )
 
 
-@router.get("/stats", response_class=HTMLResponse, dependencies=[Depends(require_staff)])
+@router.get("/stats", response_class=HTMLResponse)
 async def stats_page(request: Request, session: SessionDep, current_user=Depends(get_current_user_page)):
+    if current_user.role not in {"admissions", "analyst"}:
+        raise HTTPException(status_code=403, detail="Staff access required")
+
     summary = await get_summary(session)
     total_applications = summary["total_applications"]
     total_places = summary["budget_places"] + summary["paid_places"]
     avg_score = summary["avg_score"]
     competition = (total_applications / summary["budget_places"]) if summary["budget_places"] else 0
+    plan_percent = min(100, round((total_applications / total_places) * 100)) if total_places else 0
 
     priority_counts = summary["priority_counts"]
 
@@ -229,17 +233,42 @@ async def stats_page(request: Request, session: SessionDep, current_user=Depends
         {
             "request": request,
             "current_user": current_user,
+            "total_applicants": summary["total_applicants"],
             "total_applications": total_applications,
             "budget_places": summary["budget_places"],
             "paid_places": summary["paid_places"],
             "avg_score": round(avg_score, 1),
             "competition": round(competition, 1),
             "plan_total": total_places,
+            "plan_percent": plan_percent,
             "priority1": priority_counts.get(1, 0),
             "priority2": priority_counts.get(2, 0),
             "priority3": priority_counts.get(3, 0),
+            "accepted_count": summary["status_counts"].get("accepted", 0),
+            "pending_count": summary["status_counts"].get("pending", 0),
+            "rejected_count": summary["status_counts"].get("rejected", 0),
+            "popular_directions": summary["popular_directions"],
         },
     )
+
+
+@router.get("/applicants/list")
+async def show_applicants_list(session: SessionDep, current_user=Depends(get_current_user)):
+    if current_user.role not in {"admissions", "analyst"}:
+        raise HTTPException(status_code=403, detail="Access denied")
+    result = await session.execute(
+        select(Applicant).where(Applicant.role == "student").order_by(Applicant.id)
+    )
+    applicants = []
+    for applicant in result.scalars().all():
+        applicants.append(
+            {
+                "id": applicant.id,
+                "full_name": applicant.full_name,
+                "total_score": applicant.total_score,
+            }
+        )
+    return {"items": applicants}
 
 
 @router.get("/applicants/{student_id}", response_class=HTMLResponse)
@@ -261,21 +290,26 @@ async def get_applicant_account(
 
     for priority in priorities:
         direction = priority.direction
-        total_in_direction = await session.scalar(
-            select(func.count(ApplicantPriority.id))
+        result = await session.execute(
+            select(ApplicantPriority, Applicant)
+            .join(Applicant, Applicant.id == ApplicantPriority.applicant_id)
             .where(ApplicantPriority.direction_id == direction.id)
         )
-        higher_scores = await session.scalar(
-            select(func.count(ApplicantPriority.id))
-            .join(Applicant, Applicant.id == ApplicantPriority.applicant_id)
-            .where(
-                ApplicantPriority.direction_id == direction.id,
-                Applicant.total_score > applicant.total_score,
-            )
+        ranked_applicants = [
+            {
+                "id": item.id,
+                "score": _competitive_score(item, direction.subjects),
+            }
+            for _, item in result.all()
+        ]
+        ranked_applicants.sort(key=lambda item: (-item["score"], item["id"]))
+        position = next(
+            (index for index, item in enumerate(ranked_applicants, start=1) if item["id"] == applicant.id),
+            1,
         )
-        position = int(higher_scores or 0) + 1
-        position_text = f"{position} of {int(total_in_direction or 0)}"
+        position_text = f"{position} из {len(ranked_applicants)}"
         place_type = "Budget" if position <= direction.budget_places else "Paid"
+        competitive_score = _competitive_score(applicant, direction.subjects)
 
         status = priority.status or "pending"
         directions_view.append(
@@ -285,10 +319,10 @@ async def get_applicant_account(
                 "status": status,
                 "status_label": STATUS_LABELS.get(status, "Pending"),
                 "status_class": PROFILE_STATUS_CLASSES.get(status, "pending"),
-                "score": applicant.total_score,
+                "score": competitive_score,
                 "position": position_text,
-                "place_type": place_type,
-                "reason": "High competition" if status == "rejected" else "",
+                "place_type": "Бюджет" if place_type == "Budget" else "Платное",
+                "reason": "Высокий конкурс" if status == "rejected" else "",
                 "direction_id": direction.id,
             }
         )
@@ -324,42 +358,21 @@ async def get_applicant_account(
     )
 
 
-@router.get("/applicants/list")
-async def show_applicants_list(session: SessionDep, current_user=Depends(get_current_user)):
-    if current_user.role not in {"admissions", "analyst"}:
-        raise HTTPException(status_code=403, detail="Access denied")
-    result = await session.execute(
-        select(Applicant).where(Applicant.role == "student").order_by(Applicant.id)
-    )
-    applicants = []
-    for applicant in result.scalars().all():
-        applicants.append(
-            {
-                "id": applicant.id,
-                "full_name": applicant.full_name,
-                "total_score": applicant.total_score,
-            }
-        )
-    return {"items": applicants}
-
-
-@router.patch("/applicants/{student_id}/status", dependencies=[Depends(require_admissions)])
+@router.patch("/applicants/{student_id}/status")
 async def update_status(
     student_id: int,
-    payload: dict,
+    payload: ApplicantStatusUpdateSchema,
     session: SessionDep,
     current_user=Depends(get_current_user_page),
 ):
-    direction_id = payload.get("direction_id")
-    status = payload.get("status")
-    if status not in {"accepted", "pending", "rejected"}:
-        raise HTTPException(status_code=400, detail="Invalid status")
-    if not direction_id:
-        raise HTTPException(status_code=400, detail="Direction is required")
+    if current_user.role != "admissions":
+        raise HTTPException(status_code=403, detail="Admissions only")
 
     applicant = await get_by_id(session, student_id)
     if not applicant:
         raise HTTPException(status_code=404, detail="Applicant not found")
 
-    await set_priority_status(session, student_id, int(direction_id), status)
+    updated = await set_priority_status(session, student_id, payload.direction_id, payload.status)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Priority not found")
     return {"message": "Status updated"}
