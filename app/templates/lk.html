@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body data-theme="light" data-applicant-id="{{ applicant.id }}">
+<body data-theme="light" data-applicant-id="{{ .Applicant.ID }}">
     <header class="header">
         <div class="header_container">
             <div class="header_left">
@@ -35,15 +35,15 @@
         <div class="profile_header">
             <div class="container">
                 <div class="profile_main_info">
-                    <h1 class="profil_name_in" id="profileName">{{ applicant.full_name }}</h1>
+                    <h1 class="profil_name_in" id="profileName">{{ .Applicant.FullName }}</h1>
                     <div class="profile_meta">
                         <span class="age_prof" id="profileAge">
-                            {% if age is not none %}{{ age }} лет{% else %}Возраст не указан{% endif %}
+                            {{ if ne .AgeText "-" }}{{ .AgeText }} лет{{ else }}Возраст не указан{{ end }}
                         </span>
-                        {% if applicant.region or applicant.school %}
+                        {{ if or .Applicant.Region .Applicant.School }}
                         <span class="profile_separator">•</span>
-                        <span class="region" id="profileRegion">{{ applicant.region or applicant.school }}</span>
-                        {% endif %}
+                        <span class="region" id="profileRegion">{{ orText .Applicant.Region .Applicant.School }}</span>
+                        {{ end }}
                     </div>
                 </div>
             </div>
@@ -55,40 +55,40 @@
                     <div class="profile_card">
                         <div class="card_header">
                             <h3>Результаты ЕГЭ</h3>
-                            <span class="total_score" id="totalEgeScore">{{ total_score }}</span>
+                            <span class="total_score" id="totalEgeScore">{{ .TotalScore }}</span>
                         </div>
                         <div class="subject_ege_container" id="egeSubjects">
-                            {% for item in ege_scores %}
+                            {{ range .EGEScores }}
                             <div class="subject_ege">
-                                <span class="subject_name">{{ item.subject }}</span>
-                                <span class="subject_score">{{ item.score }}</span>
+                                <span class="subject_name">{{ .Subject }}</span>
+                                <span class="subject_score">{{ .Score }}</span>
                             </div>
-                            {% else %}
+                            {{ else }}
                             <div class="subject_ege">
                                 <span class="subject_name">Баллы не указаны</span>
                                 <span class="subject_score">-</span>
                             </div>
-                            {% endfor %}
+                            {{ end }}
                         </div>
                     </div>
 
                     <div class="profile_card">
                         <div class="card_header">
                             <h3>Индивидуальные достижения</h3>
-                            <span class="bonus_points" id="bonusPoints">+{{ bonus_points }}</span>
+                            <span class="bonus_points" id="bonusPoints">+{{ .BonusPoints }}</span>
                         </div>
                         <div class="achievements_list" id="achievementsList">
-                            {% for achievement in achievements %}
+                            {{ range .Achievements }}
                             <div class="achievement_item">
-                                <span>{{ achievement.text }}</span>
-                                <span class="achievement_points">+{{ achievement.points }}</span>
+                                <span>{{ .Text }}</span>
+                                <span class="achievement_points">+{{ .Points }}</span>
                             </div>
-                            {% else %}
+                            {{ else }}
                             <div class="achievement_item">
                                 <span>Достижения не указаны</span>
                                 <span class="achievement_points">+0</span>
                             </div>
-                            {% endfor %}
+                            {{ end }}
                         </div>
                     </div>
 
@@ -98,13 +98,13 @@
                         </div>
                         <div class="contacts_list">
                             <div class="contact_item">
-                                <span class="contact_value">{{ contacts.email }}</span>
+                                <span class="contact_value">{{ .Applicant.Email }}</span>
                             </div>
                             <div class="contact_item">
-                                <span class="contact_value">{{ contacts.phone or "-" }}</span>
+                                <span class="contact_value">{{ orText .Applicant.Phone "-" }}</span>
                             </div>
                             <div class="contact_item">
-                                <span class="contact_value">{{ contacts.telegram or "-" }}</span>
+                                <span class="contact_value">{{ orText .Applicant.Telegram "-" }}</span>
                             </div>
                         </div>
                     </div>
@@ -116,57 +116,57 @@
                             <h3>Выбранные направления</h3>
                         </div>
                         <div class="directions_list" id="directionsList">
-                            {% for direction in directions %}
-                            <div class="direction_card" data-direction-id="{{ direction.direction_id }}">
+                            {{ range .Directions }}
+                            <div class="direction_card" data-direction-id="{{ .DirectionID }}">
                                 <div class="direction_header">
                                     <div>
-                                        <span class="direction_priority priority_{{ direction.priority }}">Приоритет {{ direction.priority }}</span>
-                                        <h4 class="direction_name">{{ direction.name }}</h4>
+                                        <span class="direction_priority priority_{{ .Priority }}">Приоритет {{ .Priority }}</span>
+                                        <h4 class="direction_name">{{ .Name }}</h4>
                                     </div>
-                                    <span class="direction_status {{ direction.status_class }}">{{ direction.status_label }}</span>
+                                    <span class="direction_status {{ .StatusClass }}">{{ .StatusLabel }}</span>
                                 </div>
                                 <div class="direction_details">
                                     <div class="detail_row">
                                         <span>Конкурсный балл:</span>
-                                        <span class="detail_value">{{ direction.score }}</span>
+                                        <span class="detail_value">{{ .Score }}</span>
                                     </div>
                                     <div class="detail_row">
                                         <span>Место в рейтинге:</span>
-                                        <span class="detail_value">{{ direction.position }}</span>
+                                        <span class="detail_value">{{ .Position }}</span>
                                     </div>
                                     <div class="detail_row">
                                         <span>Тип места:</span>
-                                        <span class="detail_value budget">{{ direction.place_type }}</span>
+                                        <span class="detail_value budget">{{ .PlaceType }}</span>
                                     </div>
-                                    {% if direction.reason %}
+                                    {{ if .Reason }}
                                     <div class="detail_row">
                                         <span>Причина:</span>
-                                        <span class="detail_value">{{ direction.reason }}</span>
+                                        <span class="detail_value">{{ .Reason }}</span>
                                     </div>
-                                    {% endif %}
+                                    {{ end }}
                                 </div>
 
-                                {% if can_edit_status %}
+                                {{ if $.CanEditStatus }}
                                 <div class="status_change_buttons">
-                                    <button class="status_btn status_btn_accepted" data-status="accepted" data-direction-id="{{ direction.direction_id }}">
+                                    <button class="status_btn status_btn_accepted" data-status="accepted" data-direction-id="{{ .DirectionID }}">
                                         Принять
                                     </button>
-                                    <button class="status_btn status_btn_pending" data-status="pending" data-direction-id="{{ direction.direction_id }}">
+                                    <button class="status_btn status_btn_pending" data-status="pending" data-direction-id="{{ .DirectionID }}">
                                         На рассмотрение
                                     </button>
-                                    <button class="status_btn status_btn_rejected" data-status="rejected" data-direction-id="{{ direction.direction_id }}">
+                                    <button class="status_btn status_btn_rejected" data-status="rejected" data-direction-id="{{ .DirectionID }}">
                                         Отклонить
                                     </button>
                                 </div>
-                                {% endif %}
+                                {{ end }}
                             </div>
-                            {% else %}
+                            {{ else }}
                             <div class="direction_card">
                                 <div class="direction_header">
                                     <h4 class="direction_name">Направления не выбраны</h4>
                                 </div>
                             </div>
-                            {% endfor %}
+                            {{ end }}
                         </div>
                     </div>
                 </div>

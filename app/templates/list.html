@@ -36,21 +36,21 @@
 
                     <a class="header_btn active" href="/users/list">Список поступающих</a>
 
-                    {% if current_user.role in ['admissions', 'analyst'] %}
+                    {{ if isStaff .CurrentUser.Role }}
                     <a class="header_btn " href="/users/stats">Аналитика</a>
-                    {% elif current_user.role == 'student' %}
-                    <a class="header_btn" href="/users/applicants/{{ current_user.id }}">Кабинет</a>
-                    {% else %}
+                    {{ else if eq .CurrentUser.Role "student" }}
+                    <a class="header_btn" href="/users/applicants/{{ .CurrentUser.ID }}">Кабинет</a>
+                    {{ else }}
                     <a class="header_btn" href="/auth/enter">Вход</a>
-                    {% endif %}
+                    {{ end }}
 
                 </nav>  
 
-                {% if current_user.role != 'guest' %}
+                {{ if ne .CurrentUser.Role "guest" }}
                 <div class="profile_info">
 
                     <div class="profil_name" id="profileName">
-                        {{ current_user.full_name }}
+                        {{ .CurrentUser.FullName }}
                     </div>
 
                     <div class="profile_menu_trigger">
@@ -76,7 +76,7 @@
                     </div>
 
                 </div>
-                {% endif %}
+                {{ end }}
 
             </div>
 
@@ -102,17 +102,17 @@
         Направления подготовки
     </div>
 
-    {% for direction in directions %}
+    {{ range .Directions }}
     <div class="direction_item">
         <div class="direction_header" onclick="toggleDirection(this)">
             <div class="direction_title">
                 <span class="direction_icon">▶</span>
-                <span class="direction_name">{{ direction.name }}</span>
+                <span class="direction_name">{{ .Name }}</span>
             </div>
             <div class="direction_stats">
-                <span class="stats_count">{{ direction.applicants | length }} заявления</span>
-                <span class="stats_budget">{{ direction.budget_places }} бюджет</span>
-                <span class="stats_paid">{{ direction.paid_places }} платных</span>
+                <span class="stats_count">{{ len .Applicants }} заявления</span>
+                <span class="stats_budget">{{ .BudgetPlaces }} бюджет</span>
+                <span class="stats_paid">{{ .PaidPlaces }} платных</span>
             </div>
         </div>
         <div class="direction_content">
@@ -121,42 +121,43 @@
                     <tr>
                         <th>ФИО</th>
                         <th>Возраст</th>
-                        {% for subject in direction.subjects %}
-                        <th>{{ subject }}</th>
-                        {% endfor %}
+                        {{ range .Subjects }}
+                        <th>{{ . }}</th>
+                        {{ end }}
                         <th>Сумма</th>
                         <th>Статус</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for applicant in direction.applicants %}
+                    {{ $subjects := .Subjects }}
+                    {{ range .Applicants }}
                     <tr>
-                        <td>{{ applicant.full_name }}</td>
-                        <td>{{ applicant.age if applicant.age is not none else '-' }}</td>
-                        {% for score in applicant.scores %}
-                        <td>{{ score if score is not none else '-' }}</td>
-                        {% endfor %}
-                        <td>{{ applicant.total_score }}</td>
-                        <td><span class="status_badge {{ applicant.status_class }}">{{ applicant.status_label }}</span></td>
+                        <td>{{ .FullName }}</td>
+                        <td>{{ .Age }}</td>
+                        {{ range .Scores }}
+                        <td>{{ . }}</td>
+                        {{ end }}
+                        <td>{{ .TotalScore }}</td>
+                        <td><span class="status_badge {{ .StatusClass }}">{{ .StatusLabel }}</span></td>
                         <td>
-                            {% if current_user.role in ['admissions', 'analyst'] or (current_user.id and applicant.id == current_user.id) %}
-                            <button class="detail_btn" onclick="viewProfile({{ applicant.id }})">Подробнее</button>
-                            {% else %}
+                            {{ if canView $.CurrentUser .ID }}
+                            <button class="detail_btn" onclick="viewProfile({{ .ID }})">Подробнее</button>
+                            {{ else }}
                             —
-                            {% endif %}
+                            {{ end }}
                         </td>
                     </tr>
-                    {% else %}
+                    {{ else }}
                     <tr>
-                        <td colspan="{{ 5 + (direction.subjects | length) }}">Заявок пока нет</td>
+                        <td colspan="{{ add 5 (len $subjects) }}">Заявок пока нет</td>
                     </tr>
-                    {% endfor %}
+                    {{ end }}
                 </tbody>
             </table>
         </div>
     </div>
-    {% endfor %}
+    {{ end }}
 </div>
 <footer class="footer">
 

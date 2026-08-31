@@ -36,20 +36,20 @@
 
                     <a class="header_btn " href="/users/list">Список поступающих</a>
 
-                    {% if current_user.role in ['admissions', 'analyst'] %}
+                    {{ if isStaff .CurrentUser.Role }}
                     <a class="header_btn " href="/users/stats">Аналитика</a>
-                    {% elif current_user.role == 'student' %}
-                    <a class="header_btn" href="/users/applicants/{{ current_user.id }}">Кабинет</a>
-                    {% else %}
+                    {{ else if eq .CurrentUser.Role "student" }}
+                    <a class="header_btn" href="/users/applicants/{{ .CurrentUser.ID }}">Кабинет</a>
+                    {{ else }}
                     <a class="header_btn" href="/auth/enter">Вход</a>
-                    {% endif %}
+                    {{ end }}
 
                 </nav>  
 
                 <div class="profile_info">
 
                     <div class="profil_name" id="profileName">
-                        {{ current_user.full_name }}
+                        {{ .CurrentUser.FullName }}
                     </div>
 
                     <div class="profile_menu_trigger">
@@ -106,7 +106,7 @@
 
     <!-- ФИКСИРОВАННАЯ КНОПКА ДОБАВЛЕНИЯ НОВОСТИ -->
 
-    {% if can_manage_news %}
+    {{ if .CanManageNews }}
     <div class="btn_container">
 
         <button class="add_news_btn" id="addNewsBtn">
@@ -123,8 +123,8 @@
 
     <!-- МОДАЛЬНОЕ ОКНО для добавления новости -->
 
-    {% endif %}
-    {% if can_manage_news %}
+    {{ end }}
+    {{ if .CanManageNews }}
     <div class="modal_overlay" id="modalOverlay">
 
         <div class="modal_content">
@@ -189,7 +189,7 @@
 
 
 
-    {% endif %}
+    {{ end }}
     <footer class="footer">
 
         <div class="footer_content">
@@ -206,7 +206,7 @@
 
     <script src="/static/profile-manager.js"></script>
 
-    <script src="/static/main.js"></script>
+    <script src="/static/main.js?v=20260822"></script>
 
 </body>
 

@@ -22,7 +22,7 @@
                 </nav>
 
                 <div class="profile_info">
-                    <div class="profil_name" id="profileName">{{ current_user.full_name }}</div>
+                    <div class="profil_name" id="profileName">{{ .CurrentUser.FullName }}</div>
                     <div class="profile_menu_trigger">
                         <button class="profile_menu_btn" id="settingsToggle">⚙️ настройки</button>
                         <div class="profile_menu" id="settingsMenu">
@@ -46,7 +46,7 @@
     <div class="stats_grid">
         <div class="stats_card">
             <div class="stats_content">
-                <div class="stats_value">{{ total_applicants }}</div>
+                <div class="stats_value">{{ .TotalApplicants }}</div>
                 <div class="stats_label">абитуриентов</div>
             </div>
             <div class="stats_trend">из БД</div>
@@ -54,7 +54,7 @@
 
         <div class="stats_card">
             <div class="stats_content">
-                <div class="stats_value">{{ total_applications }}</div>
+                <div class="stats_value">{{ .TotalApplications }}</div>
                 <div class="stats_label">заявлений</div>
             </div>
             <div class="stats_trend">все приоритеты</div>
@@ -62,7 +62,7 @@
 
         <div class="stats_card">
             <div class="stats_content">
-                <div class="stats_value">{{ budget_places }}</div>
+                <div class="stats_value">{{ .BudgetPlaces }}</div>
                 <div class="stats_label">бюджетных мест</div>
             </div>
             <div class="stats_trend">план</div>
@@ -70,7 +70,7 @@
 
         <div class="stats_card">
             <div class="stats_content">
-                <div class="stats_value">{{ paid_places }}</div>
+                <div class="stats_value">{{ .PaidPlaces }}</div>
                 <div class="stats_label">платных мест</div>
             </div>
             <div class="stats_trend">план</div>
@@ -78,7 +78,7 @@
 
         <div class="stats_card">
             <div class="stats_content">
-                <div class="stats_value">{{ avg_score }}</div>
+                <div class="stats_value">{{ .AverageScore }}</div>
                 <div class="stats_label">средний балл</div>
             </div>
             <div class="stats_trend">по абитуриентам</div>
@@ -86,7 +86,7 @@
 
         <div class="stats_card">
             <div class="stats_content">
-                <div class="stats_value">{{ competition }}</div>
+                <div class="stats_value">{{ .Competition }}</div>
                 <div class="stats_label">конкурс на бюджет</div>
             </div>
             <div class="stats_trend">заявл./место</div>
@@ -98,13 +98,13 @@
             <div class="card-title">План приёма</div>
             <div class="metric-group">
                 <div class="metric-main">
-                    <span class="big-number">{{ total_applications }}</span>
-                    <span class="light-number">{{ plan_total }}</span>
+                    <span class="big-number">{{ .TotalApplications }}</span>
+                    <span class="light-number">{{ .PlanTotal }}</span>
                 </div>
                 <div class="scale">
                     <span class="scale-min">заявления</span>
                     <div class="scale-bar">
-                        <div class="scale-fill" style="width: {{ plan_percent }}%;"></div>
+                        <div class="scale-fill" style="width: {{ .PlanPercent }}%;"></div>
                     </div>
                     <span class="scale-max">места</span>
                 </div>
@@ -116,21 +116,21 @@
             <div class="card-title">По приоритетам</div>
             <div class="hundreds">
                 <div class="hundred-item">
-                    <span class="hundred_number">{{ priority1 }}</span>
+                    <span class="hundred_number">{{ .Priority1 }}</span>
                     <span class="hundred_label">1 приор.</span>
                 </div>
                 <div class="hundred-item">
-                    <span class="hundred_number">{{ priority2 }}</span>
+                    <span class="hundred_number">{{ .Priority2 }}</span>
                     <span class="hundred_label">2 приор.</span>
                 </div>
                 <div class="hundred-item">
-                    <span class="hundred_number">{{ priority3 }}</span>
+                    <span class="hundred_number">{{ .Priority3 }}</span>
                     <span class="hundred_label">3 приор.</span>
                 </div>
             </div>
             <div class="label-block">
                 <span class="label">всего заявлений</span>
-                <span class="label-value">{{ total_applications }}</span>
+                <span class="label-value">{{ .TotalApplications }}</span>
             </div>
         </div>
 
@@ -138,15 +138,15 @@
             <div class="card-title">Статусы заявлений</div>
             <div class="hundreds">
                 <div class="hundred-item">
-                    <span class="hundred_number">{{ accepted_count }}</span>
+                    <span class="hundred_number">{{ .AcceptedCount }}</span>
                     <span class="hundred_label">зачислено</span>
                 </div>
                 <div class="hundred-item">
-                    <span class="hundred_number">{{ pending_count }}</span>
+                    <span class="hundred_number">{{ .PendingCount }}</span>
                     <span class="hundred_label">на рассмотр.</span>
                 </div>
                 <div class="hundred-item">
-                    <span class="hundred_number">{{ rejected_count }}</span>
+                    <span class="hundred_number">{{ .RejectedCount }}</span>
                     <span class="hundred_label">отклонено</span>
                 </div>
             </div>
@@ -156,15 +156,15 @@
         <div class="card">
             <div class="card-title">Популярные направления</div>
             <div class="bars">
-                {% for direction in popular_directions[:5] %}
+                {{ range first .PopularDirections 5 }}
                 <div class="bar-item">
-                    <span>{{ direction.applications }}</span>
-                    <div class="bar" style="height: {{ 12 + direction.fill_percent }}px;"></div>
-                    <span class="bar-label">{{ direction.name[:10] }}</span>
+                    <span>{{ .Applications }}</span>
+                    <div class="bar" style="height: {{ add 12 .FillPercent }}px;"></div>
+                    <span class="bar-label">{{ truncate .Name 10 }}</span>
                 </div>
-                {% else %}
+                {{ else }}
                 <div class="card-footnote">Заявлений пока нет</div>
-                {% endfor %}
+                {{ end }}
             </div>
             <div class="card-footnote">первые пять направлений по количеству заявлений</div>
         </div>
@@ -172,19 +172,19 @@
         <div class="card">
             <div class="card-title">Конкурс по направлениям</div>
             <div class="delta-table">
-                {% for direction in popular_directions[:6] %}
+                {{ range first .PopularDirections 6 }}
                 <div class="delta-row">
-                    <span>{{ direction.name }}</span>
-                    <span>{{ direction.applications }} заявл.</span>
-                    <span class="delta positive">{{ direction.competition }}</span>
+                    <span>{{ .Name }}</span>
+                    <span>{{ .Applications }} заявл.</span>
+                    <span class="delta positive">{{ .Competition }}</span>
                 </div>
-                {% else %}
+                {{ else }}
                 <div class="delta-row">
                     <span>Нет данных</span>
                     <span>0 заявл.</span>
                     <span class="delta">0</span>
                 </div>
-                {% endfor %}
+                {{ end }}
             </div>
         </div>
     </div>

@@ -48,7 +48,14 @@ document.addEventListener('keydown', function(e) {
 });
 
 function getDefaultImage() {
-    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"%3E%3Crect width="800" height="400" fill="%232b7a9c"/%3E%3Ctext x="400" y="200" font-family="Arial" font-size="32" fill="white" text-anchor="middle" dy=".3em"%3EUnik University%3C/text%3E%3C/svg%3E';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">' +
+        '<defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#00466f"/><stop offset="1" stop-color="#2b7a9c"/></linearGradient></defs>' +
+        '<rect width="800" height="400" fill="url(#bg)"/>' +
+        '<circle cx="675" cy="70" r="150" fill="rgba(255,255,255,.08)"/>' +
+        '<text x="400" y="185" font-family="Arial" font-size="54" font-weight="700" fill="white" text-anchor="middle">Unik</text>' +
+        '<text x="400" y="245" font-family="Arial" font-size="24" fill="#d7eef8" text-anchor="middle">Приёмная кампания 2026</text>' +
+        '</svg>';
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
 }
 
 function escapeHtml(text) {

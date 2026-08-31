@@ -1,0 +1,162 @@
+openapi: 3.1.0
+info:
+  title: Unik Admissions API
+  version: 1.0.0
+  description: API портала приёмной кампании Unik.
+servers:
+  - url: /
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+  schemas:
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail: {type: string}
+    Login:
+      type: object
+      required: [username, password]
+      properties:
+        username: {type: string}
+        password: {type: string, format: password}
+    Registration:
+      type: object
+      required: [fullname, password, password_confirm, birthdate, phone, email, school, priorities, agreement, ege_scores]
+      properties:
+        fullname: {type: string}
+        password: {type: string, format: password, minLength: 6}
+        password_confirm: {type: string, format: password}
+        birthdate: {type: string, format: date}
+        phone: {type: string}
+        email: {type: string, format: email}
+        telegram: {type: string}
+        school: {type: string}
+        achievements: {type: string}
+        priorities:
+          type: array
+          minItems: 1
+          maxItems: 3
+          uniqueItems: true
+          items: {type: string}
+        agreement: {type: boolean}
+        ege_scores:
+          type: object
+          additionalProperties: {type: integer, minimum: 0, maximum: 100}
+    NewsInput:
+      type: object
+      required: [title, subtitle, text]
+      properties:
+        title: {type: string}
+        subtitle: {type: string}
+        text: {type: string}
+        image: {type: string}
+    StatusInput:
+      type: object
+      required: [direction_id, status]
+      properties:
+        direction_id: {type: integer, format: int64}
+        status: {type: string, enum: [accepted, pending, rejected]}
+paths:
+  /health/live:
+    get:
+      summary: Liveness probe
+      responses:
+        "200": {description: Process is alive}
+  /health/ready:
+    get:
+      summary: Readiness probe
+      responses:
+        "200": {description: PostgreSQL and Redis are ready}
+        "503": {description: PostgreSQL or Redis is unavailable}
+  /metrics:
+    get:
+      summary: Prometheus metrics
+      description: Endpoint should be restricted to an internal network in production.
+      responses:
+        "200":
+          description: Metrics in the Prometheus text exposition format
+          content:
+            text/plain:
+              schema: {type: string}
+  /auth/register:
+    post:
+      summary: Зарегистрировать абитуриента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Registration"}
+      responses:
+        "200": {description: Абитуриент зарегистрирован}
+        "400": {description: Ошибка валидации}
+  /auth/login:
+    post:
+      summary: Войти и получить JWT-cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Login"}
+      responses:
+        "200": {description: Вход выполнен; cookie установлена}
+        "401": {description: Неверные учётные данные}
+  /users/news/data:
+    get:
+      summary: Получить новости
+      security: [{cookieAuth: []}]
+      responses:
+        "200": {description: Список новостей}
+        "401": {description: Требуется авторизация}
+  /users/news:
+    post:
+      summary: Создать новость
+      security: [{cookieAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/NewsInput"}
+      responses:
+        "200": {description: Новость создана}
+        "403": {description: Требуется роль admissions}
+  /users/news/{newsID}:
+    delete:
+      summary: Удалить новость
+      security: [{cookieAuth: []}]
+      parameters:
+        - in: path
+          name: newsID
+          required: true
+          schema: {type: integer, format: int64}
+      responses:
+        "200": {description: Новость удалена}
+        "404": {description: Новость не найдена}
+  /users/applicants/list:
+    get:
+      summary: Получить краткий список абитуриентов
+      security: [{cookieAuth: []}]
+      responses:
+        "200": {description: Список абитуриентов}
+        "403": {description: Требуется роль admissions или analyst}
+  /users/applicants/{studentID}/status:
+    patch:
+      summary: Изменить статус заявления
+      security: [{cookieAuth: []}]
+      parameters:
+        - in: path
+          name: studentID
+          required: true
+          schema: {type: integer, format: int64}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/StatusInput"}
+      responses:
+        "200": {description: Статус изменён}
+        "403": {description: Требуется роль admissions}
+        "404": {description: Абитуриент или приоритет не найден}

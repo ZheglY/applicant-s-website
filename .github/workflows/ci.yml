@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: unik_test
+          POSTGRES_PASSWORD: unik_test
+          POSTGRES_DB: unik_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U unik_test -d unik_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      RUN_INTEGRATION_TESTS: "1"
+      TEST_DATABASE_URL: postgresql://unik_test:unik_test@127.0.0.1:5432/unik_test
+      TEST_REDIS_URL: redis://127.0.0.1:6379/0
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.5"
+          cache: true
+      - name: Verify dependencies
+        run: go mod verify
+      - name: Check formatting
+        run: test -z "$(gofmt -l cmd internal tests)"
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test -race -count=1 ./...
+      - name: Build binaries
+        run: |
+          go build -trimpath ./cmd/api
+          go build -trimpath ./cmd/seed
+      - name: Validate Compose
+        run: docker compose config --quiet
+      - name: Build container
+        run: docker build --tag unik-api:ci .

@@ -151,12 +151,12 @@
                         <div class="input-group">
                             <label>Результаты ЕГЭ</label>
                             <div class="ege-grid">
-                                {% for subject in subjects %}
+                                {{ range .Subjects }}
                                 <div class="ege-item">
-                                    <span class="ege-subject">{{ subject }}</span>
+                                    <span class="ege-subject">{{ . }}</span>
                                     <input type="number" class="ege-score" placeholder="баллы" min="0" max="100">
                                 </div>
-                                {% endfor %}
+                                {{ end }}
                             </div>
                             <div class="input-hint">* Для выбранного направления должны быть заполнены все его предметы</div>
                         </div>
@@ -187,20 +187,20 @@
                         <div class="input-group">
                             <label>Выберите направления (до 3-х)</label>
                             <div class="priorities-container" id="prioritiesContainer">
-                                {% for priority_number in [1, 2, 3] %}
+                                {{ range $priorityNumber := (priorityNumbers) }}
                                 <div class="priority-item">
                                     <div class="priority-header">
-                                        <span class="priority-number">{{ priority_number }}</span>
+                                        <span class="priority-number">{{ $priorityNumber }}</span>
                                         <span class="priority-label">Приоритет</span>
                                     </div>
                                     <select class="priority-select" onchange="updatePriorities()">
                                         <option value="">Выберите направление</option>
-                                        {% for direction in directions %}
-                                        <option value="{{ direction.direction_name }}">{{ direction.direction_name }}</option>
-                                        {% endfor %}
+                                        {{ range $.Directions }}
+                                        <option value="{{ .DirectionName }}">{{ .DirectionName }}</option>
+                                        {{ end }}
                                     </select>
                                 </div>
-                                {% endfor %}
+                                {{ end }}
                             </div>
                             <div class="input-hint" id="priorityHint"></div>
                         </div>
